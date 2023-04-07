@@ -1294,8 +1294,8 @@ def make_dactyl():
 
     def external_mount_hole():
         print('external_mount_hole()')
-        shape = box(external_holder_width, 20.0, external_holder_height + .1)
-        undercut = box(external_holder_width + 8, 10.0, external_holder_height + 8 + .1)
+        shape = box(20.0,external_holder_width,  external_holder_height + .1)
+        undercut = box( 10.0,external_holder_width + 8, external_holder_height + 8 + .1)
         shape = union([shape, translate(undercut, (0, -5, 0))])
 
         shape = translate(shape,
