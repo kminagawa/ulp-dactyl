@@ -1045,7 +1045,12 @@ def make_dactyl():
             (lambda sh: left_key_place(sh, 0, 1, side=side)), -1, 0, web_post(),
         )])
 
-        for i in range(lastrow):
+        if full_last_rows:
+            torow = lastrow +1
+        else:
+            torow = lastrow
+
+        for i in range(torow):
             y = i
             low = (y == (lastrow - 1))
             temp_shape1 = wall_brace(
@@ -1061,7 +1066,7 @@ def make_dactyl():
             shape = union([shape, temp_shape1])
             shape = union([shape, temp_shape2])
 
-        for i in range(lastrow - 1):
+        for i in range(torow - 1):
             y = i + 1
             low = (y == (lastrow - 1))
             temp_shape1 = wall_brace(
