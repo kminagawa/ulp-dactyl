@@ -18,6 +18,7 @@ from clusters.trackball_three import TrackballThree
 from clusters.trackball_cj import TrackballCJ
 from clusters.custom_cluster import CustomCluster
 from clusters.trackball_btu import TrackballBTU
+from clusters.trackball_jonboh import TrackballJonboh
 from json_loader import load_json
 
 from os import path
@@ -205,7 +206,7 @@ def make_dactyl():
     centerrow = nrows - centerrow_offset
 
     lastrow = nrows - 1
-    cornerrow = lastrow - 1
+    cornerrow = lastrow
     lastcol = ncols - 1
 
     oled_row = nrows - 1
@@ -2274,6 +2275,8 @@ def make_dactyl():
             clust = TrackballThree(all_merged)
         elif style == TrackballBTU.name():
             clust = TrackballBTU(all_merged)
+        elif style == TrackballJonboh.name():
+            clust = TrackballJonboh(all_merged)
         elif style == TrackballCJ.name():
             clust = TrackballCJ(all_merged)
         elif style == CustomCluster.name():

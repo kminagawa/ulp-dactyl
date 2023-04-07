@@ -1,112 +1,67 @@
+from clusters.trackball_wilder import TrackballWild
+from clusters.default_cluster import DefaultCluster
 import json
 import os
 
-
-class DefaultCluster(object):
-    num_keys = 6
-    is_tb = False
-    thumb_offsets = [
-        6,
-        -3,
-        7
+class TrackballJonboh(DefaultCluster):
+    key_diameter = 75
+    translation_offset = [
+        -20,
+        10,
+        0
     ]
-    thumb_plate_tr_rotation = 0
-    thumb_plate_tl_rotation = 0
-    thumb_plate_mr_rotation = 0
-    thumb_plate_ml_rotation = 0
-    thumb_plate_br_rotation = 0
-    thumb_plate_bl_rotation = 0
+    rotation_offset = [
+        0,
+        0,
+        0
+    ]
 
     @staticmethod
     def name():
-        return "DEFAULT"
-
+        return "TRACKBALL_JONBOH"
 
     def get_config(self):
         with open(os.path.join("src", "clusters", "json", "DEFAULT.json"), mode='r') as fid:
             data = json.load(fid)
+
+        superdata = super().get_config()
+
+        # overwrite any super variables with this class' needs
         for item in data:
+            superdata[item] = data[item]
+
+        for item in superdata:
             if not hasattr(self, str(item)):
                 print(self.name() + ": NO MEMBER VARIABLE FOR " + str(item))
                 continue
-            setattr(self, str(item), data[item])
-        return data
+            setattr(self, str(item), superdata[item])
+
+        return superdata
 
     def __init__(self, parent_locals):
+        # self.num_keys = 4
+        self.is_tb = True
+        super().__init__(parent_locals)
         for item in parent_locals:
             globals()[item] = parent_locals[item]
-        self.get_config()
-        print(self.name(), " built")
 
-    def thumborigin(self):
-        # debugprint('thumborigin()')
-        origin = key_position([mount_width / 2, -(mount_height / 2), 0], 1, cornerrow)
-        _thumb_offsets = self.thumb_offsets.copy()
-        if shift_column != 0:
-            _thumb_offsets[0] = self.thumb_offsets[0] + (shift_column * (mount_width + 6))
-            # if shift_column < 0:  # raise cluster up when moving inward
-            #     _thumb_offsets[1] = self.thumb_offsets[1] - (shift_column * 3)
-            #     _thumb_offsets[2] = self.thumb_offsets[2] - (shift_column * 8)
-            #     if shift_column <= -2:
-            #         # y = shift_column * 15
-            #         _thumb_offsets[1] = self.thumb_offsets[1] - (shift_column * 15)
-        for i in range(len(origin)):
-            origin[i] = origin[i] + _thumb_offsets[i]
+    def position_rotation(self):
+        rot = [10, -15, 5]
+        pos = self.thumborigin()
+        # Changes size based on key diameter around ball, shifting off of the top left cluster key.
+        shift = [-.9 * self.key_diameter/2 + 27 - 42, -.1 * self.key_diameter / 2 + 3 - 20, -5]
+        for i in range(len(pos)):
+            pos[i] = pos[i] + shift[i] + self.translation_offset[i]
 
-        return origin
+        for i in range(len(rot)):
+            rot[i] = rot[i] + self.rotation_offset[i]
 
-    def thumb_rotate(self):
-        x = y = z = 0
-        if shift_column != 0:
-            y = shift_column * 8
-            if shift_column < 0:
-                z = shift_column * -10
-        return [x, y, z]
+        return pos, rot
 
-    def thumb_place(self, shape):
-        shape = translate(shape, self.thumborigin())
-        return rotate(shape, self.thumb_rotate())
-
-    def tl_place(self, shape):
-        debugprint('tl_place()')
-        shape = rotate(shape, [7.5, -18, 10])
-        shape = translate(shape, [-32.5, -14.5, -2.5])
-        shape = self.thumb_place(shape)
-        return shape
-
-    def tr_place(self, shape):
-        debugprint('tr_place()')
-        shape = rotate(shape, [10, -15, 10])
-        shape = translate(shape, [-12, -16, 3])
-        shape = self.thumb_place(shape)
-        return shape
-
-    def mr_place(self, shape):
-        debugprint('mr_place()')
-        shape = rotate(shape, [-6, -34, 48])
-        shape = translate(shape, [-29, -40, -13])
-        shape = self.thumb_place(shape)
-        return shape
-
-    def ml_place(self, shape):
-        debugprint('ml_place()')
-        shape = rotate(shape, [6, -34, 40])
-        shape = translate(shape, [-51, -25, -12])
-        shape = self.thumb_place(shape)
-        return shape
-
-    def br_place(self, shape):
-        debugprint('br_place()')
-        shape = rotate(shape, [-16, -33, 54])
-        shape = translate(shape, [-37.8, -55.3, -25.3])
-        shape = self.thumb_place(shape)
-        return shape
-
-    def bl_place(self, shape):
-        debugprint('bl_place()')
-        shape = rotate(shape, [-4, -35, 52])
-        shape = translate(shape, [-56.3, -43.3, -23.5])
-        shape = self.thumb_place(shape)
+    def track_place(self, shape):
+        pos, rot = self.position_rotation()
+        shape = rotate(shape, rot)
+        shape = translate(shape, pos)
         return shape
 
     def thumb_1x_layout(self, shape, cap=False):
@@ -137,42 +92,58 @@ class DefaultCluster(object):
             shapes = union(shape_list)
         return shapes
 
-    def thumb_15x_layout(self, shape, cap=False, plate=True):
-        debugprint('thumb_15x_layout()')
-        if plate:
-            if cap:
-                shape = rotate(shape, (0, 0, 90))
-                cap_list = [self.tl_place(rotate(shape, [0, 0, self.thumb_plate_tl_rotation]))]
-                cap_list.append(self.tr_place(rotate(shape, [0, 0, self.thumb_plate_tr_rotation])))
-                return add(cap_list)
-            else:
-                shape_list = [self.tl_place(rotate(shape, [0, 0, self.thumb_plate_tl_rotation]))]
-                if not default_1U_cluster:
-                    shape_list.append(self.tr_place(rotate(shape, [0, 0, self.thumb_plate_tr_rotation])))
-                return union(shape_list)
-        else:
-            if cap:
-                shape = rotate(shape, (0, 0, 90))
-                shape_list = [
-                    self.tl_place(shape),
-                ]
-                shape_list.append(self.tr_place(shape))
-
-                return add(shape_list)
-            else:
-                shape_list = [
-                    self.tl_place(shape),
-                ]
-                if not default_1U_cluster:
-                    shape_list.append(self.tr_place(shape))
-
-                return union(shape_list)
+    def thumb_fx_layout(self, shape):
+        return union([])
 
     def thumbcaps(self, side='right'):
-        t1 = self.thumb_1x_layout(sa_cap(1), cap=True)
-        if not default_1U_cluster:
-            t1.add(self.thumb_15x_layout(sa_cap(1.5), cap=True))
+        t1 = self.thumb_1x_layout(sa_cap(1))
         return t1
+
+
+    def tb_post_r(self):
+        debugprint('post_r()')
+        radius = ball_diameter/2 + ball_wall_thickness + ball_gap
+        return translate(web_post(),
+                         [1.0*(radius - post_adj), 0.0*(radius - post_adj), 0]
+                         )
+
+    def tb_post_tr(self):
+        debugprint('post_tr()')
+        radius = ball_diameter/2+ball_wall_thickness + ball_gap
+        return translate(web_post(),
+                         [0.5*(radius - post_adj), 0.866*(radius - post_adj), 0]
+                         )
+
+
+    def tb_post_tl(self):
+        debugprint('post_tl()')
+        radius = ball_diameter/2+ball_wall_thickness + ball_gap
+        return translate(web_post(),
+                         [-0.5*(radius - post_adj), 0.866*(radius - post_adj), 0]
+                         )
+
+
+    def tb_post_l(self):
+        debugprint('post_l()')
+        radius = ball_diameter/2+ball_wall_thickness + ball_gap
+        return translate(web_post(),
+                         [-1.0*(radius - post_adj), 0.0*(radius - post_adj), 0]
+                         )
+
+    def tb_post_bl(self):
+        debugprint('post_bl()')
+        radius = ball_diameter/2+ball_wall_thickness + ball_gap
+        return translate(web_post(),
+                         [-0.5*(radius - post_adj), -0.866*(radius - post_adj), 0]
+                         )
+
+
+    def tb_post_br(self):
+        debugprint('post_br()')
+        radius = ball_diameter/2+ball_wall_thickness + ball_gap
+        return translate(web_post(),
+                         [0.5*(radius - post_adj), -0.866*(radius - post_adj), 0]
+                         )
 
     def thumb(self, side="right"):
         print('thumb()')
@@ -181,30 +152,6 @@ class DefaultCluster(object):
         shape = union([shape, self.thumb_15x_layout(double_plate(), plate=False)])
 
         return shape
-
-    def thumb_post_tr(self):
-        debugprint('thumb_post_tr()')
-        return translate(web_post(),
-                         [(mount_width / 2) - post_adj, ((mount_height / 2) + double_plate_height) - post_adj, 0]
-                         )
-
-    def thumb_post_tl(self):
-        debugprint('thumb_post_tl()')
-        return translate(web_post(),
-                         [-(mount_width / 2) + post_adj, ((mount_height / 2) + double_plate_height) - post_adj, 0]
-                         )
-
-    def thumb_post_bl(self):
-        debugprint('thumb_post_bl()')
-        return translate(web_post(),
-                         [-(mount_width / 2) + post_adj, -((mount_height / 2) + double_plate_height) + post_adj, 0]
-                         )
-
-    def thumb_post_br(self):
-        debugprint('thumb_post_br()')
-        return translate(web_post(),
-                         [(mount_width / 2) - post_adj, -((mount_height / 2) + double_plate_height) + post_adj, 0]
-                         )
 
     def thumb_connectors(self, side="right"):
         print('default thumb_connectors()')
@@ -434,81 +381,57 @@ class DefaultCluster(object):
     def connection(self, side='right'):
         print('thumb_connection()')
         # clunky bit on the top left thumb connection  (normal connectors don't work well)
-        shape = union([bottom_hull(
-            [
-                left_cluster_key_place(translate(web_post(), wall_locate2(-1, 0)), cornerrow, -1, low_corner=True, side=side),
-                left_cluster_key_place(translate(web_post(), wall_locate3(-1, 0)), cornerrow, -1, low_corner=True, side=side),
-                self.ml_place(translate(web_post_tr(), wall_locate2(-0.3, 1))),
-                self.ml_place(translate(web_post_tr(), wall_locate3(-0.3, 1))),
-            ]
-        )])
+        hulls = []
+        hulls.append(
+            triangle_hulls(
+                [
+                    cluster_key_place(web_post_bl(), 0, cornerrow),
+                    left_cluster_key_place(web_post(), lastrow - 1, -1, side=side, low_corner=True),                # left_cluster_key_place(translate(web_post(), wall_locate1(-1, 0)), cornerrow, -1, low_corner=True),
+                    self.track_place(self.tb_post_tl()),
+                ]
+            )
+        )
 
-        shape = union([shape,
-                       hull_from_shapes(
-                           [
-                               left_cluster_key_place(translate(web_post(), wall_locate2(-1, 0)), cornerrow, -1,
-                                              low_corner=True, side=side),
-                               left_cluster_key_place(translate(web_post(), wall_locate3(-1, 0)), cornerrow, -1,
-                                              low_corner=True, side=side),
-                               self.ml_place(translate(web_post_tr(), wall_locate2(-0.3, 1))),
-                               self.ml_place(translate(web_post_tr(), wall_locate3(-0.3, 1))),
-                               self.tl_place(self.thumb_post_tl()),
-                           ]
-                       )
-                       ])  # )
-
-        shape = union([shape, hull_from_shapes(
-            [
-                left_cluster_key_place(translate(web_post(), wall_locate1(-1, 0)), cornerrow, -1, low_corner=True, side=side),
-                left_cluster_key_place(translate(web_post(), wall_locate2(-1, 0)), cornerrow, -1, low_corner=True, side=side),
-                left_cluster_key_place(translate(web_post(), wall_locate3(-1, 0)), cornerrow, -1, low_corner=True, side=side),
-                self.tl_place(self.thumb_post_tl()),
-            ]
-        )])
-
-        shape = union([shape, hull_from_shapes(
-            [
-                left_cluster_key_place(web_post(), cornerrow, -1, low_corner=True, side=side),
-                left_cluster_key_place(translate(web_post(), wall_locate1(-1, 0)), cornerrow, -1, low_corner=True, side=side),
-                key_place(web_post_bl(), 0, cornerrow),
-                self.tl_place(self.thumb_post_tl()),
-            ]
-        )])
-
-        shape = union([shape, hull_from_shapes(
-            [
-                self.ml_place(web_post_tr()),
-                self.ml_place(translate(web_post_tr(), wall_locate1(-0.3, 1))),
-                self.ml_place(translate(web_post_tr(), wall_locate2(-0.3, 1))),
-                self.ml_place(translate(web_post_tr(), wall_locate3(-0.3, 1))),
-                self.tl_place(self.thumb_post_tl()),
-            ]
-        )])
-
-        shape = union([shape, hull_from_shapes(
-            [
-                self.tl_place(self.thumb_post_tl()),
-                cluster_key_place(web_post_bl(), 0, cornerrow),
-                key_place(web_post_bl(), 0, cornerrow),
-                # left_cluster_key_place(web_post_bl(), cornerrow, 0, low_corner=False, side=side),
-                translate(key_place(web_post_bl(), 0, cornerrow), wall_locate1(-1, 0)),
-                self.tl_place(self.thumb_post_tl()),
-            ]
-        )])
-
-        # shape = union([shape, key_place(sphere(5), 0, cornerrow)])
-
+        # hulls.append(
+        #     triangle_hulls(
+        #         [
+        #             cluster_key_place(web_post_bl(), 0, cornerrow),
+        #             self.tl_place(web_post_bl()),
+        #             cluster_key_place(web_post_br(), 0, cornerrow),
+        #             self.tl_place(web_post_tl()),
+        #             cluster_key_place(web_post_bl(), 1, cornerrow),
+        #             self.tl_place(web_post_tl()),
+        #             cluster_key_place(web_post_br(), 1, cornerrow),
+        #             self.tl_place(web_post_tr()),
+        #             cluster_key_place(web_post_tl(), 2, lastrow),
+        #             cluster_key_place(web_post_bl(), 2, lastrow),
+        #             self.tl_place(web_post_tr()),
+        #             cluster_key_place(web_post_bl(), 2, lastrow),
+        #             self.mr_place(web_post_tl()),
+        #             cluster_key_place(web_post_br(), 2, lastrow),
+        #             cluster_key_place(web_post_bl(), 3, lastrow),
+        #             self.mr_place(web_post_tr()),
+        #             self.mr_place(web_post_tl()),
+        #             cluster_key_place(web_post_br(), 2, lastrow),
+        #                   
+        #             cluster_key_place(web_post_bl(), 3, lastrow),
+        #             cluster_key_place(web_post_tr(), 2, lastrow),
+        #             cluster_key_place(web_post_tl(), 3, lastrow),
+        #             cluster_key_place(web_post_bl(), 3, cornerrow),
+        #             cluster_key_place(web_post_tr(), 3, lastrow),
+        #             cluster_key_place(web_post_br(), 3, cornerrow),
+        #             cluster_key_place(web_post_bl(), 4, cornerrow),
+        #         ]
+        #     )
+        # )
+        shape = union(hulls)
         return shape
 
-    def screw_positions(self):
-        position = self.thumborigin()
-        position = list(np.array(position) + np.array([-15, -58, 0]))
-        position[2] = 0
-
-        return position
-
-    def get_extras(self, shape, pos):
-        return shape
-
+    # def screw_positions(self):
+    #     position = self.thumborigin()
+    #     position = list(np.array(position) + np.array([-72, -40, -16]))
+    #     position[2] = 0
+    #
+    #     return position
     def has_btus(self):
-        return False
+        return True
