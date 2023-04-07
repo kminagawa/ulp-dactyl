@@ -1905,7 +1905,7 @@ def make_dactyl():
     def screw_insert_all_shapes(bottom_radius, top_radius, height, offset=0, side='right', hole=False):
         print('screw_insert_all_shapes()')
         so = screw_offsets
-        shape = (
+        shape = [
             translate(screw_insert(0, 0, bottom_radius, top_radius, height, side=side, hole=hole), (so[0][0], so[0][1], so[0][2] + offset)),  # rear left
             translate(screw_insert(0, lastrow - 1, bottom_radius, top_radius, height, side=side, hole=hole),
                       (so[1][0], so[1][1] + left_wall_lower_y_offset, so[1][2] + offset)),  # front left
@@ -1917,9 +1917,11 @@ def make_dactyl():
             translate(screw_insert(lastcol, lastrow - 1, bottom_radius, top_radius, height, side=side, hole=hole),
                       (so[5][0], so[5][1], so[5][2] + offset)),  # front right
             translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0], so[6][1], so[6][2] + offset)),  # thumb cluster
-        )
+        ]
+        if side=='right':
+            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-65, so[6][1]+57, so[6][2] + offset))) # extra screw on right side
 
-        return shape
+        return tuple(shape)
 
 
     def screw_insert_holes(side='right'):
