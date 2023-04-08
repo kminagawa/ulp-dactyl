@@ -1307,6 +1307,36 @@ def make_dactyl():
                           )
         return shape
 
+    def compactyl_mount_hole():
+        shape = import_file(path.join(parts_path, r"usb_holder_w_reset"))
+        compactyl_holder_height = 18
+        compactyl_holder_width =  30.6
+        # undercut = box( 10.0,external_holder_width + 8, external_holder_height + 8 + .1)
+        # shape = union([shape, translate(undercut, (0, -5, 0))])
+        shape = translate(shape,
+                          (
+                              external_start[0] + external_holder_xoffset,
+                              external_start[1] + external_holder_yoffset,
+                              compactyl_holder_height / 2 - .05,
+                          )
+                          )
+        return shape
+
+    def compactyl_vertical_mount_hole():
+        print('compactyl_vertical_mount_hole()')
+        shape = import_file(path.join(parts_path, r"usb_holder_vertical_cutout"))
+        compactyl_holder_height = 30.6
+        compactyl_holder_width =  18
+        # undercut = box( 10.0,external_holder_width + 8, external_holder_height + 8 + .1)
+        # shape = union([shape, translate(undercut, (0, -5, 0))])
+        shape = translate(shape,
+                          (
+                              external_start[0] + external_holder_xoffset,
+                              external_start[1] + external_holder_yoffset,
+                              compactyl_holder_height / 2 - .05,
+                          )
+                          )
+        return shape
 
 ########### TRACKBALL GENERATION
     def use_btus(cluster):
@@ -2009,6 +2039,12 @@ def make_dactyl():
 
             if controller_mount_type in ['EXTERNAL']:
                 s2 = difference(s2, [external_mount_hole()])
+
+            if controller_mount_type in ['COMPACTYL']:
+                s2 = difference(s2, [compactyl_mount_hole()])
+
+            if controller_mount_type in ['COMPACTYL_VERTICAL']:
+                s2 = difference(s2, [compactyl_vertical_mount_hole()])
 
             if controller_mount_type in ['None']:
                 0  # do nothing, only here to expressly state inaction.
