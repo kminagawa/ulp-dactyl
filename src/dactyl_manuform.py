@@ -954,17 +954,17 @@ def make_dactyl():
         hulls.append(place2(translate(post2, wall_locate1(dx2, dy2))))
         hulls.append(place2(translate(post2, wall_locate2(dx2, dy2))))
         hulls.append(place2(translate(post2, wall_locate3(dx2, dy2, back))))
-        shape1 = hull_from_shapes(hulls)
+        brace = hull_from_shapes(hulls)
 
         hulls = []
         hulls.append(place1(translate(post1, wall_locate2(dx1, dy1))))
         hulls.append(place1(translate(post1, wall_locate3(dx1, dy1, back))))
         hulls.append(place2(translate(post2, wall_locate2(dx2, dy2))))
         hulls.append(place2(translate(post2, wall_locate3(dx2, dy2, back))))
-        shape2 = bottom_hull(hulls)
+        vertical = bottom_hull(hulls)
 
-        return union([shape1, shape2])
-        # return shape1
+        # return union([shape1, shape2])
+        return vertical, brace
 
 
     def key_wall_brace(x1, y1, dx1, dy1, post1, x2, y2, dx2, dy2, post2, back=False):
@@ -985,125 +985,125 @@ def make_dactyl():
     def back_wall():
         print("back_wall()")
         x = 0
-        shape = union([key_wall_brace(x, 0, 0, 1, web_post_tl(), x, 0, 0, 1, web_post_tr(), back=True)])
+        shapes = list()
+        shapes.append(key_wall_brace(x, 0, 0, 1, web_post_tl(), x, 0, 0, 1, web_post_tr(), back=True))
         for i in range(ncols - 1):
             x = i + 1
-            shape = union([shape, key_wall_brace(x, 0, 0, 1, web_post_tl(), x, 0, 0, 1, web_post_tr(), back=True)])
-            shape = union([shape, key_wall_brace(
+            shapes.append(key_wall_brace(x, 0, 0, 1, web_post_tl(), x, 0, 0, 1, web_post_tr(), back=True))
+            shapes.append(key_wall_brace(
                 x, 0, 0, 1, web_post_tl(), x - 1, 0, 0, 1, web_post_tr(), back=True
-            )])
-        shape = union([shape, key_wall_brace(
+            ))
+        shapes.append(key_wall_brace(
             lastcol, 0, 0, 1, web_post_tr(), lastcol, 0, 1, 0, web_post_tr(), back=True
-        )])
-        return shape
+        ))
+        # union all shapes into vertical and brace
+        vertical = union(list(map(lambda x: x[0], shapes)))
+        braces = union(list(map(lambda x: x[1], shapes)))
+        return vertical, braces
 
 
     def right_wall():
         print("right_wall()")
 
         torow = lastrow - 1
-
         if (full_last_rows or ncols < 5):
             torow = lastrow
-
         tocol = lastcol
-
         y = 0
-        shape = union([
-            key_wall_brace(
-                tocol, y, 1, 0, web_post_tr(), tocol, y, 1, 0, web_post_br()
-            )
-        ])
+        shapes = list()
+        shapes.append( key_wall_brace(
+                tocol, y, 1, 0, web_post_tr(), tocol, y, 1, 0, web_post_br()))
 
         for i in range(torow):
             y = i + 1
-            shape = union([shape, key_wall_brace(
+            shapes.append(key_wall_brace(
                 tocol, y - 1, 1, 0, web_post_br(), tocol, y, 1, 0, web_post_tr()
-            )])
+            ))
 
-            shape = union([shape, key_wall_brace(
+            shapes.append(key_wall_brace(
                 tocol, y, 1, 0, web_post_tr(), tocol, y, 1, 0, web_post_br()
-            )])
+            ))
             # STRANGE PARTIAL OFFSET
 
         if ncols > 4:
-            shape = union([
-                shape,
-                key_wall_brace(lastcol, torow, 0, -1, web_post_br(), lastcol, torow, 1, 0, web_post_br())
-            ])
-        return shape
+            shapes.append(key_wall_brace(lastcol, torow, 0, -1, web_post_br(), lastcol, torow, 1, 0, web_post_br())
+            )
+        # union all shapes into vertical and brace
+        vertical = union(list(map(lambda x: x[0], shapes)))
+        braces = union(list(map(lambda x: x[1], shapes)))
+        return vertical, braces
 
 
     def left_wall(side='right'):
         print('left_wall()')
-        shape = union([wall_brace(
+        shapes = list() # list of (vertical, brace)
+        shapes.append(wall_brace(
             (lambda sh: key_place(sh, 0, 0)), 0, 1, web_post_tl(),
             (lambda sh: left_key_place(sh, 0, 1, side=side)), 0, 1, web_post(),
-        )])
+        ))
 
-        shape = union([shape, wall_brace(
+        shapes.append(wall_brace(
             (lambda sh: left_key_place(sh, 0, 1, side=side)), 0, 1, web_post(),
             (lambda sh: left_key_place(sh, 0, 1, side=side)), -1, 0, web_post(),
-        )])
+        ))
 
+        extra_braces = list()
         if full_last_rows:
             torow = lastrow +1
         else:
             torow = lastrow
-
         for i in range(torow):
             y = i
             low = (y == (lastrow - 1))
-            temp_shape1 = wall_brace(
+            shapes.append(wall_brace(
                 (lambda sh: left_key_place(sh, y, 1, side=side)), -1, 0, web_post(),
                 (lambda sh: left_key_place(sh, y, -1, low_corner=low, side=side)), -1, 0, web_post(),
-            )
-            temp_shape2 = hull_from_shapes((
+            ))
+            extra_braces.append(hull_from_shapes((
                 key_place(web_post_tl(), 0, y),
                 key_place(web_post_bl(), 0, y),
                 left_key_place(web_post(), y, 1, side=side),
                 left_key_place(web_post(), y, -1, low_corner=low, side=side),
-            ))
-            shape = union([shape, temp_shape1])
-            shape = union([shape, temp_shape2])
-
+            )))
+        
         for i in range(torow - 1):
             y = i + 1
             low = (y == (lastrow - 1))
-            temp_shape1 = wall_brace(
+            shapes.append(wall_brace(
                 (lambda sh: left_key_place(sh, y - 1, -1, side=side)), -1, 0, web_post(),
                 (lambda sh: left_key_place(sh, y, 1, side=side)), -1, 0, web_post(),
-            )
-            temp_shape2 = hull_from_shapes((
+            ))
+            extra_braces.append(hull_from_shapes((
                 key_place(web_post_tl(), 0, y),
                 key_place(web_post_bl(), 0, y - 1),
                 left_key_place(web_post(), y, 1, side=side),
                 left_key_place(web_post(), y - 1, -1, side=side),
                 left_key_place(web_post(), y - 1, -1, side=side),
-            ))
-            shape = union([shape, temp_shape1])
-            shape = union([shape, temp_shape2])
-
-        return shape
+            )))
+        # union all shapes into vertical and brace
+        vertical = union(list(map(lambda x: x[0], shapes)))
+        braces = union(list(map(lambda x: x[1], shapes))+extra_braces)
+        return vertical, braces
 
 
     def front_wall():
         print('front_wall()')
 
-        shape = union([
+        shapes = list()
+        shapes.append(
             key_wall_brace(
                 lastcol, 0, 0, 1, web_post_tr(), lastcol, 0, 1, 0, web_post_tr()
             )
-        ])
-        shape = union([shape, key_wall_brace(
+        )
+        shapes.append(key_wall_brace(
             col(3), bottom_key(col(3)), 0, -1, web_post_bl(), col(3), bottom_key(col(3)), 0, -1, web_post_br()
-        )])
+        ))
         # shape = union([key_wall_brace(
         #     col(3), bottom_key(col(3)), 0, -1, web_post_bl(), col(3), bottom_key(col(3)), 0.5, -1, web_post_br()
         # )])
-        shape = union([shape, key_wall_brace(
+        shapes.append(key_wall_brace(
             col(3), bottom_key(col(3)), 0, -1, web_post_br(), col(4), bottom_key(col(4)), 0.5, -1, web_post_bl()
-        )])
+        ))
 
         min_last_col = shift_column + 2  # first_bottom_key()
         if min_last_col < 0:
@@ -1114,32 +1114,35 @@ def make_dactyl():
         if ncols >= min_last_col + 1:
             for i in range(ncols - (min_last_col + 1)):
                 x = i + min_last_col + 1
-                shape = union([shape, key_wall_brace(
+                shapes.append(key_wall_brace(
                     x, bottom_key(x), 0, -1, web_post_bl(), x, bottom_key(x), 0, -1, web_post_br()
-                )])
+                ))
 
         if ncols >= min_last_col + 2:
             for i in range(ncols - (min_last_col + 2)):
                 x = i + (min_last_col + 2)
-                shape = union([shape, key_wall_brace(
+                shapes.append(key_wall_brace(
                     x, bottom_key(x), 0, -1, web_post_bl(), x - 1, bottom_key(x - 1), 0, -1, web_post_br()
-                )])
-
-        return shape
+                ))
+        vertical = union(list(map(lambda x: x[0], shapes)))
+        braces = union(list(map(lambda x: x[1], shapes)))
+        return vertical, braces
 
 
     def case_walls(side='right'):
         print('case_walls()')
-        return (
-            union([
-                back_wall(),
-                left_wall(side=side),
-                right_wall(),
-                front_wall(),
-                cluster(side=side).walls(side=side),
-                cluster(side=side).connection(side=side),
-            ])
-        )
+        shapes = list()
+        shapes.append(back_wall())
+        shapes.append(left_wall(side=side))
+        shapes.append(right_wall())
+        shapes.append(front_wall())
+
+        shapes.append(cluster(side=side).walls(side=side))
+        extra_braces = [cluster(side=side).connection(side=side)]
+
+        vertical = union(list(map(lambda x: x[0], shapes)))
+        braces = union(list(map(lambda x: x[1], shapes))+extra_braces)
+        return vertical, braces
 
 
     rj9_start = list(
@@ -1949,7 +1952,7 @@ def make_dactyl():
             translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0], so[6][1], so[6][2] + offset)),  # thumb cluster
         ]
         if side=='right':
-            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-65, so[6][1]+57, so[6][2] + offset))) # extra screw on right side
+            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-58, so[6][1]+57, so[6][2] + offset))) # extra screw on right side
 
         return tuple(shape)
 
@@ -1998,59 +2001,56 @@ def make_dactyl():
         print('model_side()' + side)
         shape = union([key_holes(side=side)])
         if debug_exports:
-            export_file(shape=shape, fname=path.join(r".", "things", r"debug_key_plates"))
+            export_file(shape=shape, fname=path.join(r".", "things", f"debug_key_plates_{side}"))
         connector_shape = connectors()
         shape = union([shape, connector_shape])
         if debug_exports:
-            export_file(shape=shape, fname=path.join(r".", "things", r"debug_connector_shape"))
+            export_file(shape=shape, fname=path.join(r".", "things", f"debug_connector_shape_{side}"))
         thumb_shape = cluster(side).thumb(side=side)
         if debug_exports:
-            export_file(shape=thumb_shape, fname=path.join(r".", "things", r"debug_thumb_shape"))
+            export_file(shape=thumb_shape, fname=path.join(r".", "things", f"debug_thumb_shape_{side}"))
         shape = union([shape, thumb_shape])
         thumb_connector_shape = cluster(side).thumb_connectors(side=side)
         shape = union([shape, thumb_connector_shape])
         if debug_exports:
-            export_file(shape=shape, fname=path.join(r".", "things", r"debug_thumb_connector_shape"))
-        walls_shape = case_walls(side=side)
+            export_file(shape=shape, fname=path.join(r".", "things", f"debug_thumb_connector_shape_{side}"))
+        walls_vertical, walls_brace = case_walls(side=side)
         if debug_exports:
-            export_file(shape=walls_shape, fname=path.join(r".", "things", r"debug_walls_shape"))
-        s2 = union([walls_shape])
-        s2 = union([s2, *screw_insert_outers(side=side)])
+            export_file(shape=walls_vertical, fname=path.join(r".", "things", f"debug_walls_shape_{side}"))
 
+        if independent_walls:
+            s2 = union([walls_vertical])
+        else:
+            s2 = union([walls_vertical, walls_brace])
+        s2 = union([s2, *screw_insert_outers(side=side)])
         if trrs_hole:
             s2 = difference(s2, [trrs_mount_point()])
-
         if controller_side == "both" or side == controller_side:
             if controller_mount_type in ['RJ9_USB_TEENSY', 'USB_TEENSY']:
                 s2 = union([s2, teensy_holder()])
-
             if controller_mount_type in ['RJ9_USB_TEENSY', 'RJ9_USB_WALL', 'USB_WALL', 'USB_TEENSY']:
                 s2 = union([s2, usb_holder()])
                 s2 = difference(s2, [usb_holder_hole()])
-
             if controller_mount_type in ['USB_C_WALL']:
                 s2 = difference(s2, [usb_c_mount_point()])
-
             if controller_mount_type in ['RJ9_USB_TEENSY', 'RJ9_USB_WALL']:
                 s2 = difference(s2, [rj9_space()])
-
             if controller_mount_type in ['BLACKPILL_EXTERNAL']:
                 s2 = difference(s2, [blackpill_mount_hole()])
-
             if controller_mount_type in ['EXTERNAL']:
                 s2 = difference(s2, [external_mount_hole()])
-
             if controller_mount_type in ['COMPACTYL']:
                 s2 = difference(s2, [compactyl_mount_hole()])
-
             if controller_mount_type in ['COMPACTYL_VERTICAL']:
                 s2 = difference(s2, [compactyl_vertical_mount_hole()])
-
             if controller_mount_type in ['None']:
                 0  # do nothing, only here to expressly state inaction.
 
         s2 = difference(s2, [union(screw_insert_holes(side=side))])
-        shape = union([shape, s2])
+        if independent_walls:
+            shape = union([shape, walls_brace])
+        else:
+            shape = union([shape, s2])
 
         if controller_mount_type in ['RJ9_USB_TEENSY', 'RJ9_USB_WALL']:
             shape = union([shape, rj9_holder()])
@@ -2105,8 +2105,11 @@ def make_dactyl():
                 if show_caps:
                     shape = add([shape, ball])
 
-        block = translate(box(400, 400, 40), (0, 0, -20))
-        shape = difference(shape, [block])
+        floor = translate(box(400, 400, 40), (0, 0, -20))
+        shape = difference(shape, [floor])
+        if independent_walls:
+            s2 = difference(s2, [floor, walls_brace]) # remove floor and the actual model
+            export_file(shape=s2, fname=path.join(".", path.join(save_path, config_name + f"_walls_{side}")))
 
         if show_caps:
             shape = add([shape, cluster(side).thumbcaps(side=side)])
@@ -2115,7 +2118,7 @@ def make_dactyl():
         if side == "left":
             shape = mirror(shape, 'YZ')
 
-        return shape, walls_shape
+        return shape, walls_vertical
 
     def wrist_rest(base, plate, side="right"):
         rest = import_file(path.join(parts_path, "dactyl_wrist_rest_v3_" + side))

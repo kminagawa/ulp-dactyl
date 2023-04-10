@@ -23,7 +23,7 @@
   "inner_column": false,
   "all_last_rows": true,
   "full_last_rows": true,
-  "keyboard_z_offset": 22,
+  "keyboard_z_offset": 26,
   "thumb_style": "TRACKBALL_JONBOH",
   "right_side_only": false,
   "default_1U_cluster": true,
@@ -98,11 +98,11 @@
   "pinky_1_5U": false,
   "first_1_5U_row": 0,
   "last_1_5U_row": 5,
-  "extra_width": 0,
+  "extra_width": 0.5,
   "extra_height": -0.5,
-  "wall_z_offset": 15,
-  "wall_x_offset": 5,
-  "wall_y_offset": 6,
+  "wall_z_offset": 3,
+  "wall_x_offset": 3,
+  "wall_y_offset": 3,
   "left_wall_x_offset": 8,
   "left_wall_z_offset": 3,
   "left_wall_lower_y_offset": 0,
@@ -111,6 +111,7 @@
   "wall_base_y_thickness": 4.5,
   "wall_base_x_thickness": 4.5,
   "wall_base_back_thickness": 4.5,
+  "independent_walls": false,
   "fixed_angles": [
     0.17453277777777776,
     0.17453277777777776,
@@ -299,12 +300,12 @@
       0
     ],
     [
-      8,
-      -38,
+      7,
+      -34,
       0
     ],
     [
-      -11,
+      -18,
       -10,
       0
     ]

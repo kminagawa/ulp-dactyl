@@ -407,48 +407,48 @@ class DefaultCluster(object):
 
     def walls(self, side="right"):
         print('thumb_walls()')
+        shapes = list()
         # thumb, walls
         if default_1U_cluster:
-            shape = union([wall_brace(self.mr_place, 0, -1, web_post_br(), self.tr_place, 0, -1, web_post_br())])
+            shapes.append(wall_brace(self.mr_place, 0, -1, web_post_br(), self.tr_place, 0, -1, web_post_br()))
         else:
-            shape = union([wall_brace(self.mr_place, 0, -1, web_post_br(), self.tr_place, 0, -1, self.thumb_post_br())])
-        shape = union([shape, wall_brace(self.mr_place, 0, -1, web_post_br(), self.mr_place, 0, -1, web_post_bl())])
-        shape = union([shape, wall_brace(self.br_place, 0, -1, web_post_br(), self.br_place, 0, -1, web_post_bl())])
-        shape = union([shape, wall_brace(self.ml_place, -0.3, 1, web_post_tr(), self.ml_place, 0, 1, web_post_tl())])
-        shape = union([shape, wall_brace(self.bl_place, 0, 1, web_post_tr(), self.bl_place, 0, 1, web_post_tl())])
-        shape = union([shape, wall_brace(self.br_place, -1, 0, web_post_tl(), self.br_place, -1, 0, web_post_bl())])
-        shape = union([shape, wall_brace(self.bl_place, -1, 0, web_post_tl(), self.bl_place, -1, 0, web_post_bl())])
+            shapes.append(wall_brace(self.mr_place, 0, -1, web_post_br(), self.tr_place, 0, -1, self.thumb_post_br()))
+        shapes.append(wall_brace(self.mr_place, 0, -1, web_post_br(), self.mr_place, 0, -1, web_post_bl()))
+        shapes.append(wall_brace(self.br_place, 0, -1, web_post_br(), self.br_place, 0, -1, web_post_bl()))
+        shapes.append(wall_brace(self.ml_place, -0.3, 1, web_post_tr(), self.ml_place, 0, 1, web_post_tl()))
+        shapes.append(wall_brace(self.bl_place, 0, 1, web_post_tr(), self.bl_place, 0, 1, web_post_tl()))
+        shapes.append(wall_brace(self.br_place, -1, 0, web_post_tl(), self.br_place, -1, 0, web_post_bl()))
+        shapes.append(wall_brace(self.bl_place, -1, 0, web_post_tl(), self.bl_place, -1, 0, web_post_bl()))
         # thumb, corners
-        shape = union([shape, wall_brace(self.br_place, -1, 0, web_post_bl(), self.br_place, 0, -1, web_post_bl())])
-        shape = union([shape, wall_brace(self.bl_place, -1, 0, web_post_tl(), self.bl_place, 0, 1, web_post_tl())])
+        shapes.append(wall_brace(self.br_place, -1, 0, web_post_bl(), self.br_place, 0, -1, web_post_bl()))
+        shapes.append(wall_brace(self.bl_place, -1, 0, web_post_tl(), self.bl_place, 0, 1, web_post_tl()))
         # thumb, tweeners
-        shape = union([shape, wall_brace(self.mr_place, 0, -1, web_post_bl(), self.br_place, 0, -1, web_post_br())])
-        shape = union([shape, wall_brace(self.ml_place, 0, 1, web_post_tl(), self.bl_place, 0, 1, web_post_tr())])
-        shape = union([shape, wall_brace(self.bl_place, -1, 0, web_post_bl(), self.br_place, -1, 0, web_post_tl())])
+        shapes.append(wall_brace(self.mr_place, 0, -1, web_post_bl(), self.br_place, 0, -1, web_post_br()))
+        shapes.append(wall_brace(self.ml_place, 0, 1, web_post_tl(), self.bl_place, 0, 1, web_post_tr()))
+        shapes.append(wall_brace(self.bl_place, -1, 0, web_post_bl(), self.br_place, -1, 0, web_post_tl()))
         if default_1U_cluster:
-            shape = union([shape,
-                           wall_brace(self.tr_place, 0, -1, web_post_br(), (lambda sh: cluster_key_place(sh, 3, lastrow)), 0,
-                                      -1, web_post_bl())])
+            shapes.append( wall_brace(self.tr_place, 0, -1, web_post_br(), (lambda sh: cluster_key_place(sh, 3, lastrow)), 0,
+                                      -1, web_post_bl()))
         else:
-            shape = union([shape, wall_brace(self.tr_place, 0, -1, self.thumb_post_br(),
-                                             (lambda sh: cluster_key_place(sh, 3, lastrow)), 0, -1, web_post_bl())])
-
-        return shape
-
-    def connection(self, side='right'):
-        print('thumb_connection()')
-        # clunky bit on the top left thumb connection  (normal connectors don't work well)
-        shape = union([bottom_hull(
+            shapes.append(wall_brace(self.tr_place, 0, -1, self.thumb_post_br(),
+                                             (lambda sh: cluster_key_place(sh, 3, lastrow)), 0, -1, web_post_bl()))
+        extra_walls = [bottom_hull(
             [
                 left_cluster_key_place(translate(web_post(), wall_locate2(-1, 0)), cornerrow, -1, low_corner=True, side=side),
                 left_cluster_key_place(translate(web_post(), wall_locate3(-1, 0)), cornerrow, -1, low_corner=True, side=side),
                 self.ml_place(translate(web_post_tr(), wall_locate2(-0.3, 1))),
                 self.ml_place(translate(web_post_tr(), wall_locate3(-0.3, 1))),
             ]
-        )])
+        )]
+        vertical = union(list(map(lambda x: x[0], shapes))+extra_walls)
+        braces = union(list(map(lambda x: x[1], shapes)))
+        return vertical, braces
 
-        shape = union([shape,
-                       hull_from_shapes(
+    def connection(self, side='right'):
+        print('thumb_connection()')
+        # clunky bit on the top left thumb connection  (normal connectors don't work well)
+
+        shape = union([ hull_from_shapes(
                            [
                                left_cluster_key_place(translate(web_post(), wall_locate2(-1, 0)), cornerrow, -1,
                                               low_corner=True, side=side),

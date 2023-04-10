@@ -227,12 +227,9 @@ class TrackballJonboh(DefaultCluster):
                     self.tl_place(web_post_bl()),
                     self.mr_place(web_post_tr()),
                     self.track_place(self.tb_post_br()),
+                    self.tl_place(web_post_bl()),
                     self.tl_place(web_post_tl()),
-                    # self.ml_place(web_post_bl()),
-                    # self.tl_place(web_post_bl())
-                    # self.track_place(self.tb_post_br()),
-                    # self.mr_place(web_post_tr()),
-                    # self.ml_place(web_post_br()),
+                    self.tl_place(web_post_bl()),
                 ]
             )
         )
@@ -359,48 +356,50 @@ class TrackballJonboh(DefaultCluster):
 
     def walls(self, side="right"):
         print('thumb_walls()')
+        shapes = list()
         # thumb, walls
         if default_1U_cluster:
-            shape = union([wall_brace(self.mr_place, 0, -1, web_post_br(), self.tr_place, 0, -1, web_post_br())])
+            shapes.append(wall_brace(self.mr_place, 0, -1, web_post_br(), self.tr_place, 0, -1, web_post_br()))
         else:
-            shape = union([wall_brace(self.mr_place, 0, -1, web_post_br(), self.tr_place, 0, -1, self.thumb_post_br())])
-        shape = union([shape, wall_brace(self.mr_place, 0, -1, web_post_br(), self.mr_place, 0, -1, web_post_bl())])
-        shape = union([shape, wall_brace(self.br_place, 0, -1, web_post_br(), self.br_place, 0, -1, web_post_bl())])
+            shapes.append(wall_brace(self.mr_place, 0, -1, web_post_br(), self.tr_place, 0, -1, self.thumb_post_br()))
+        shapes.append(wall_brace(self.mr_place, 0, -1, web_post_br(), self.mr_place, 0, -1, web_post_bl()))
+        shapes.append(wall_brace(self.br_place, 0, -1, web_post_br(), self.br_place, 0, -1, web_post_bl()))
         # shape = union([shape, wall_brace(self.ml_place, -0.3, 1, web_post_tr(), self.ml_place, 0, 1, web_post_tl())])
         # shape = union([shape, wall_brace(self.bl_place, 0, 1, web_post_tr(), self.bl_place, 0, 1, web_post_tl())])
-        shape = union([shape, wall_brace(self.br_place, -1, 0, web_post_tl(), self.br_place, -1, 0, web_post_bl())])
-        shape = union([shape, wall_brace(self.bl_place, -1, 0, web_post_tl(), self.bl_place, -1, 0, web_post_bl())])
+        shapes.append(wall_brace(self.br_place, -1, 0, web_post_tl(), self.br_place, -1, 0, web_post_bl()))
+        shapes.append(wall_brace(self.bl_place, -1, 0, web_post_tl(), self.bl_place, -1, 0, web_post_bl()))
         # thumb, corners
-        shape = union([shape, wall_brace(self.br_place, -1, 0, web_post_bl(), self.br_place, 0, -1, web_post_bl())])
-        shape = union([shape, wall_brace(self.bl_place, -1, 0, web_post_tl(), self.bl_place, 0, 1, web_post_tl())])
+        shapes.append(wall_brace(self.br_place, -1, 0, web_post_bl(), self.br_place, 0, -1, web_post_bl()))
+        shapes.append(wall_brace(self.bl_place, -1, 0, web_post_tl(), self.bl_place, 0, 1, web_post_tl()))
         # thumb, tweeners
-        shape = union([shape, wall_brace(self.mr_place, 0, -1, web_post_bl(), self.br_place, 0, -1, web_post_br())])
+        shapes.append(wall_brace(self.mr_place, 0, -1, web_post_bl(), self.br_place, 0, -1, web_post_br()))
         # shape = union([shape, wall_brace(self.ml_place, 0, 1, web_post_tl(), self.bl_place, 0, 1, web_post_tr())])
-        shape = union([shape, wall_brace(self.bl_place, -1, 0, web_post_bl(), self.br_place, -1, 0, web_post_tl())])
+        shapes.append(wall_brace(self.bl_place, -1, 0, web_post_bl(), self.br_place, -1, 0, web_post_tl()))
         if default_1U_cluster:
-            shape = union([shape,
-                           wall_brace(self.tr_place, 0, -1, web_post_br(), (lambda sh: cluster_key_place(sh, 3, lastrow)), 0,
-                                      -1, web_post_bl())])
+            shapes.append( wall_brace(self.tr_place, 0, -1, web_post_br(), (lambda sh: cluster_key_place(sh, 3, lastrow)), 0,
+                                      -1, web_post_bl()))
         else:
-            shape = union([shape, wall_brace(self.tr_place, 0, -1, self.thumb_post_br(),
-                                             (lambda sh: cluster_key_place(sh, 3, lastrow)), 0, -1, web_post_bl())])
+            shapes.append(wall_brace(self.tr_place, 0, -1, self.thumb_post_br(),
+                                             (lambda sh: cluster_key_place(sh, 3, lastrow)), 0, -1, web_post_bl()))
 
         # TOP LEFT BEHIND TRACKBALL
-        shape = union([shape, wall_brace(
+        shapes.append(wall_brace(
             self.track_place, -1.5, 0, self.tb_post_tl(),
             (lambda sh: left_cluster_key_place(sh, lastrow - 1, -1, side=ball_side, low_corner=True)), -1, 0, web_post(),
-        )])
+        ))
         # LEFT OF TRACKBALL
-        shape = union([shape, wall_brace(
+        shapes.append(wall_brace(
             self.track_place, -2, 0, self.tb_post_tl(),
             self.track_place, -2, 0, self.tb_post_l(),
-        )])
-        shape = union([shape, wall_brace(
+        ))
+        shapes.append(wall_brace(
             self.track_place, -2, 0, self.tb_post_l(),
             self.bl_place, -1, 0, web_post_tl(),
-        )])
+        ))
+        vertical = union(list(map(lambda x: x[0], shapes)))
+        braces = union(list(map(lambda x: x[1], shapes)))
+        return vertical, braces
 
-        return shape
 
     def connection(self, side='right'):
         print('thumb_connection()')
