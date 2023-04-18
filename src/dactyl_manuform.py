@@ -986,8 +986,9 @@ def make_dactyl():
         print("back_wall()")
         x = 0
         shapes = list()
-        shapes.append(key_wall_brace(x, 0, 0, 1, web_post_tl(), x, 0, 0, 1, web_post_tr(), back=True))
-        for i in range(ncols - 1):
+        shapes.append(key_wall_brace(x, 0, 0, 1, web_post_tl(), x+2, 0, 0, 1, web_post_tl(), back=True))
+        shapes.append(key_wall_brace(x+2, 0, 0, 1, web_post_tl(), x+2, 0, 0, 1, web_post_tr(), back=True))
+        for i in range(2, ncols - 1):
             x = i + 1
             shapes.append(key_wall_brace(x, 0, 0, 1, web_post_tl(), x, 0, 0, 1, web_post_tr(), back=True))
             shapes.append(key_wall_brace(
@@ -996,9 +997,18 @@ def make_dactyl():
         shapes.append(key_wall_brace(
             lastcol, 0, 0, 1, web_post_tr(), lastcol, 0, 1, 0, web_post_tr(), back=True
         ))
+        
+        # extra braces for index finger wall
+        extra_braces = [triangle_hulls(
+            [key_place(web_post_tl(), 0, 0),
+             key_place(web_post_tr(), 1, 0),
+             key_place(web_post_tl(), 2, 0)]
+            )]
+
+
         # union all shapes into vertical and brace
         vertical = union(list(map(lambda x: x[0], shapes)))
-        braces = union(list(map(lambda x: x[1], shapes)))
+        braces = union(list(map(lambda x: x[1], shapes))+extra_braces)
         return vertical, braces
 
 
@@ -1090,22 +1100,7 @@ def make_dactyl():
         print('front_wall()')
 
         shapes = list()
-        shapes.append(
-            key_wall_brace(
-                lastcol, 0, 0, 1, web_post_tr(), lastcol, 0, 1, 0, web_post_tr()
-            )
-        )
-        shapes.append(key_wall_brace(
-            col(3), bottom_key(col(3)), 0, -1, web_post_bl(), col(3), bottom_key(col(3)), 0, -1, web_post_br()
-        ))
-        # shape = union([key_wall_brace(
-        #     col(3), bottom_key(col(3)), 0, -1, web_post_bl(), col(3), bottom_key(col(3)), 0.5, -1, web_post_br()
-        # )])
-        shapes.append(key_wall_brace(
-            col(3), bottom_key(col(3)), 0, -1, web_post_br(), col(4), bottom_key(col(4)), 0.5, -1, web_post_bl()
-        ))
-
-        min_last_col = shift_column + 2  # first_bottom_key()
+        min_last_col = shift_column + 3  # first_bottom_key()
         if min_last_col < 0:
             min_last_col = 0
         if min_last_col >= ncols - 1:
@@ -1332,13 +1327,14 @@ def make_dactyl():
         compactyl_holder_width =  18
         # undercut = box( 10.0,external_holder_width + 8, external_holder_height + 8 + .1)
         # shape = union([shape, translate(undercut, (0, -5, 0))])
-        shape = translate(shape,
-                          (
+        shape = translate(
+               rotate(shape, external_holder_rotation),
+               [
                               external_start[0] + external_holder_xoffset,
                               external_start[1] + external_holder_yoffset,
                               compactyl_holder_height / 2 - .05,
-                          )
-                          )
+                              ]
+                       )
         return shape
 
 ########### TRACKBALL GENERATION
