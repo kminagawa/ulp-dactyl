@@ -1292,11 +1292,12 @@ def make_dactyl():
 
     def external_mount_hole():
         print('external_mount_hole()')
-        shape = box(20.0,external_holder_width,  external_holder_height + .1)
-        undercut = box( 10.0,external_holder_width + 8, external_holder_height + 8 + .1)
-        shape = union([shape, translate(undercut, (0, -5, 0))])
+        shape = box(external_holder_width, 40.0, external_holder_height + .1)
+        # undercut = box( 10.0,external_holder_width + 8, external_holder_height + 8 + .1)
+        # shape = union([shape, translate(undercut, (0, -5, 0))])
 
-        shape = translate(shape,
+        shape = translate(
+                rotate(shape, external_holder_rotation),
                           (
                               external_start[0] + external_holder_xoffset,
                               external_start[1] + external_holder_yoffset,
@@ -1402,7 +1403,7 @@ def make_dactyl():
         precut = rotate(precut, rot)
         precut = translate(precut, pos)
 
-        shape, cutout, sensor = trackball_socket(btus=use_btus(cluster))
+        shape, cutout, _ = trackball_socket(btus=use_btus(cluster))
 
         shape = rotate(shape, tb_r_offset)
         shape = translate(shape, tb_t_offset)
@@ -1421,12 +1422,18 @@ def make_dactyl():
 
         # Small adjustment due to line to line surface / minute numerical error issues
         # Creates small overlap to assist engines in union function later
+        sensor = union([
+                translate( box(32.5, 16, 2) , [-1.75, 2, -8]),
+                translate( translate( box(2, 16, 10) , [-1, 2, -3]), [-16, 0, 0]),
+                translate( translate( box(2, 16, 10) , [-2.5, 2, -3]), [16, 0, 0])
+                ])
+        sensor = rotate(sensor, [0, 5, 0])
         sensor = rotate(sensor, tb_r_offset)
         sensor = translate(sensor, tb_t_offset)
 
         # Hackish?  Oh, yes. But it builds with latest cadquery.
-        if ENGINE == 'cadquery':
-            sensor = translate(sensor, (0, 0, -15))
+        # if ENGINE == 'cadquery':
+        #     sensor = translate(sensor, (0, 0, -15))
         # sensor = rotate(sensor, tb_sensor_translation_offset)
         # sensor = translate(sensor, tb_sensor_rotation_offset)
         sensor = translate(sensor, (0, 0, .005))
@@ -1938,8 +1945,6 @@ def make_dactyl():
             translate(screw_insert(0, 0, bottom_radius, top_radius, height, side=side, hole=hole), (so[0][0], so[0][1], so[0][2] + offset)),  # rear left
             translate(screw_insert(0, lastrow - 1, bottom_radius, top_radius, height, side=side, hole=hole),
                       (so[1][0], so[1][1] + left_wall_lower_y_offset, so[1][2] + offset)),  # front left
-            translate(screw_insert(3, lastrow, bottom_radius, top_radius, height, side=side, hole=hole),
-                      (so[2][0], so[2][1], so[2][2] + offset)),  # front middle
             translate(screw_insert(3, 0, bottom_radius, top_radius, height, side=side, hole=hole), (so[3][0], so[3][1], so[3][2] + offset)),  # rear middle
             translate(screw_insert(lastcol, 0, bottom_radius, top_radius, height, side=side, hole=hole),
                       (so[4][0], so[4][1], so[4][2] + offset)),  # rear right
@@ -1948,7 +1953,12 @@ def make_dactyl():
             translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0], so[6][1], so[6][2] + offset)),  # thumb cluster
         ]
         if side=='right':
-            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-58, so[6][1]+57, so[6][2] + offset))) # extra screw on right side
+            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-52, so[6][1]+57, so[6][2] + offset))) # extra screw on right side
+        else:
+            shape.append(
+            translate(screw_insert(3, lastrow, bottom_radius, top_radius, height, side=side, hole=hole),
+                      (so[2][0], so[2][1], so[2][2] + offset)),  # front middle
+            )
 
         return tuple(shape)
 
@@ -2035,10 +2045,13 @@ def make_dactyl():
                 s2 = difference(s2, [blackpill_mount_hole()])
             if controller_mount_type in ['EXTERNAL']:
                 s2 = difference(s2, [external_mount_hole()])
+                # s2 = union([s2, external_mount_hole()])
+
             if controller_mount_type in ['COMPACTYL']:
                 s2 = difference(s2, [compactyl_mount_hole()])
             if controller_mount_type in ['COMPACTYL_VERTICAL']:
                 s2 = difference(s2, [compactyl_vertical_mount_hole()])
+                # s2 = union([s2, compactyl_vertical_mount_hole()])
             if controller_mount_type in ['None']:
                 0  # do nothing, only here to expressly state inaction.
 
@@ -2089,6 +2102,7 @@ def make_dactyl():
                 if cluster(side).has_btus():
                     shape = difference(shape, [tbcutout])
                     shape = union([shape, tb])
+                    shape = union([shape, sensor])
                 else:
                     # export_file(shape=shape, fname=path.join(save_path, config_name + r"_test_1"))
                     shape = union([shape, tb])

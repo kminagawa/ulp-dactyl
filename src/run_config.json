@@ -1,5 +1,5 @@
 {
-  "ENGINE": "solid",
+  "ENGINE": "cadquery",
   "branch": "",
   "save_dir": ".",
   "overrides": "",
@@ -188,15 +188,15 @@
   "wire_post_height": 7,
   "wire_post_overhang": 3.5,
   "wire_post_diameter": 2.6,
-  "controller_mount_type": "COMPACTYL_VERTICAL",
+  "controller_mount_type": "EXTERNAL",
   "controller_side": "both",
-  "external_holder_height": 12.5,
-  "external_holder_width": 29.2,
+  "external_holder_height": 31,
+  "external_holder_width": 19,
   "blackpill_holder_width": 32.0,
   "blackpill_holder_xoffset": -6.5,
-  "external_holder_xoffset": -15,
+  "external_holder_xoffset": -7,
   "external_holder_yoffset": 5,
-  "external_holder_rotation": [0, 0, 23],
+  "external_holder_rotation": [0, 0, 15],
   "usb_c_width": 9.5,
   "usb_c_height": 3.5,
   "usb_c_xoffset": -3,
@@ -276,18 +276,18 @@
   ],
   "screw_offsets": [
     [
-      2,
       6,
+      9.5,
       0
     ],
     [
-      0,
-      -13,
+      7.5,
+      -29,
       0
     ],
     [
-      0,
-      0,
+      -73,
+      -22,
       0
     ],
     [
@@ -296,18 +296,18 @@
       0
     ],
     [
-      4,
-      9,
+      -9,
+      10,
       0
     ],
     [
-      7,
+      -5,
       -34,
       0
     ],
     [
-      -18,
-      -10,
+      -20,
+      -9,
       0
     ]
   ],
