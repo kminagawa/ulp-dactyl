@@ -1420,10 +1420,9 @@ def make_dactyl():
         cutout = rotate(cutout, rot)
         cutout = translate(cutout, pos)
 
-        # Small adjustment due to line to line surface / minute numerical error issues
-        # Creates small overlap to assist engines in union function later
+        ##
         sensor = union([
-                translate( box(32.5, 16, 2) , [-1.75, 2, -8]),
+                translate( box(32.5, 16, 24) , [-1.75, 2, -19]),
                 translate( translate( box(2, 16, 10) , [-1, 2, -3]), [-16, 0, 0]),
                 translate( translate( box(2, 16, 10) , [-2.5, 2, -3]), [16, 0, 0])
                 ])
@@ -1431,15 +1430,12 @@ def make_dactyl():
         sensor = rotate(sensor, tb_r_offset)
         sensor = translate(sensor, tb_t_offset)
 
-        # Hackish?  Oh, yes. But it builds with latest cadquery.
-        # if ENGINE == 'cadquery':
-        #     sensor = translate(sensor, (0, 0, -15))
-        # sensor = rotate(sensor, tb_sensor_translation_offset)
-        # sensor = translate(sensor, tb_sensor_rotation_offset)
+        ##
         sensor = translate(sensor, (0, 0, .005))
         sensor = rotate(sensor, rot)
         sensor = translate(sensor, pos)
 
+        
         ball = trackball_ball()
         ball = rotate(ball, tb_r_offset)
         ball = translate(ball, tb_t_offset)
@@ -1953,7 +1949,7 @@ def make_dactyl():
             translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0], so[6][1], so[6][2] + offset)),  # thumb cluster
         ]
         if side=='right':
-            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-52, so[6][1]+57, so[6][2] + offset))) # extra screw on right side
+            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-50, so[6][1]+52, so[6][2] + offset))) # extra screw on right side
         else:
             shape.append(
             translate(screw_insert(3, lastrow, bottom_radius, top_radius, height, side=side, hole=hole),
@@ -2356,9 +2352,17 @@ def make_dactyl():
     run()
 
 
+def make_btu2static():
+    shape = cylinder(12.6/2, 6)
+    bearing = translate(cylinder(3/2, 3), [0,0,3])
+    shape = difference(shape, [ bearing ])
+    # shape = union([shape, bearing])
+    export_file(shape, fname="things/btu2static")
 #
 if __name__ == '__main__':
     make_dactyl()
+
+    make_btu2static()
 
     # base = baseplate()
     # export_file(shape=base, fname=path.join(save_path, config_name + r"_plate"))
