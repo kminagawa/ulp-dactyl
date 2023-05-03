@@ -2496,6 +2496,18 @@ def make_chair_sides_coupler():
 
     export_file(shape, fname="things/chair_sides_coupler")
 
+def make_bltouch_adapter():
+    shape = union([
+        difference(box(20, 20, 2.5),[
+            translate(cylinder(3.5/2, 10), [6.5, 4.5, 0]),
+            translate(cylinder(3.5/2, 10), [6.5, -4.5, 0]),
+            translate(cylinder(3.5/2, 10), [1.5, 1.5, 0]),
+            translate(cylinder(3.5/2, 10), [1.5, -7.5, 0])
+            ]),
+        translate(box(20,3, 2.5), [0, -11.5, 0])])
+    export_file(shape, fname="things/bltouch_adapter")
+
+
 if __name__ == '__main__':
     make_dactyl()
 
@@ -2503,6 +2515,7 @@ if __name__ == '__main__':
         make_btu2static()
         make_chair_corner_adapter()
         make_chair_sides_coupler()
+        make_bltouch_adapter()
 
     # base = baseplate()
     # export_file(shape=base, fname=path.join(save_path, config_name + r"_plate"))
