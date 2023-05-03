@@ -70,7 +70,7 @@ def make_dactyl():
 
     left_wall_x_offset = 8
     left_wall_x_row_offsets = [
-        8, 8, 8, 8, 8, 8, 8, 8
+        38, 43, 28, 28, 28, 28, 28, 28
     ]
     left_wall_z_offset = 3
     left_wall_lower_y_offset = 0
@@ -1051,7 +1051,7 @@ def make_dactyl():
             (lambda sh: key_place(sh, 0, 0)), 0, 1, web_post_tl(),
             (lambda sh: left_key_place(sh, 0, 1, side=side)), 0, 1, web_post(),
         ))
-
+        
         shapes.append(wall_brace(
             (lambda sh: left_key_place(sh, 0, 1, side=side)), 0, 1, web_post(),
             (lambda sh: left_key_place(sh, 0, 1, side=side)), -1, 0, web_post(),
@@ -1062,6 +1062,7 @@ def make_dactyl():
             torow = lastrow +1
         else:
             torow = lastrow
+        torow-=1
         for i in range(torow):
             y = i
             low = (y == (lastrow - 1))
@@ -1131,9 +1132,10 @@ def make_dactyl():
         shapes.append(left_wall(side=side))
         shapes.append(right_wall())
         shapes.append(front_wall())
-
+        
         shapes.append(cluster(side=side).walls(side=side))
         extra_braces = [cluster(side=side).connection(side=side)]
+        # extra_braces = []
 
         vertical = union(list(map(lambda x: x[0], shapes)))
         braces = union(list(map(lambda x: x[1], shapes))+extra_braces)
@@ -1343,9 +1345,75 @@ def make_dactyl():
         return trackball_in_wall or (cluster is not None and cluster.has_btus())
 
     def trackball_cutout(segments=100, side="right"):
-        shape = cylinder(trackball_hole_diameter / 2, trackball_hole_height)
+        # shape = cylinder(trackball_hole_diameter / 2, trackball_hole_height)
+        shape = box(0,0,0)
         return shape
 
+    def rexroth_bearing(cutter):
+        tolerance_diameter = 0.25
+        tolerance_depth = 1.5
+        return translate(union([
+                translate(cylinder(12.6/2+tolerance_diameter, 6.4+tolerance_depth), [0,0,-3.2]),
+                cylinder(17/2+tolerance_diameter, 1.8+tolerance_depth),
+                translate(sphere(4) if not cutter else translate(cylinder(17/2+tolerance_diameter, 4), [0,0,2]), [0,0,-0.1])
+            ]), [0, 0, -0.9])
+
+    def rexroth_bearing_cutter():
+        return rexroth_bearing(True)
+
+    def trackball_holder():
+        outer_shell_radius = 25
+        trackball_radius = 17
+        ball_spacing = 5
+        distance_bearing_plate = 3
+        sensor_holder_distance = 10
+        sensor_plate_extra_distance = -0.75
+        bearings_horizon_rotation = [10,7,31]
+        bearing_zrotation_offset = -15
+        sensor_rotations = ([0,0,-125],[-25,0,0],[0,2,0],[0,25,0])
+        trackball_hole_radius = trackball_radius+ball_spacing
+        holder_back_thickness = 48
+        outer_shell = sphere(outer_shell_radius)
+        trackball_hole = sphere(trackball_hole_radius)
+        box_cutter = translate(box(100,100,100), [0,0, 50])
+        cylinder_cutter = translate(cylinder(trackball_radius+1, 100), [0,0,50])
+        sensor_hole = box(12,8,100)
+        sensor_plate_distance = trackball_radius+sensor_plate_extra_distance
+
+        bearings = union([
+            rotate(translate(rotate(rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate , 0, 0]), [0,-bearings_horizon_rotation[0],bearing_zrotation_offset]),
+            rotate(rotate(translate(rotate( rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate, 0, 0]), [0,-bearings_horizon_rotation[1],0]), [0, 0,bearing_zrotation_offset + 120]),
+            rotate(rotate(translate(rotate( rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate, 0, 0]), [0,-bearings_horizon_rotation[2],0]), [0, 0, bearing_zrotation_offset + 240])])
+
+        sensor_plate = translate(translate(box(32, 21, 1), [0,0,-0.5]), [0,0, -sensor_plate_distance])
+        sensor_section_sealing = translate(translate(cylinder(19, 1), [0,0,-0.5]), [0,0,-sensor_plate_distance])
+        sensor_plate = union([sensor_section_sealing,sensor_plate])
+        sensor_plate = difference(sensor_plate, [sensor_hole])
+        sensor_cutter = translate(translate(box(100,100,100), [0,0, -50]), [0,0,-sensor_plate_distance])
+        sensor_holder = union([
+                translate(translate( box(32.3, 18, holder_back_thickness) , [0, 1, -holder_back_thickness/2]),[0,-2.5,-sensor_plate_distance-sensor_holder_distance]),
+                translate( translate( box(2, 18, sensor_holder_distance) , [0.85, 1, sensor_holder_distance/2]), [-16, -2.5, -sensor_plate_distance-sensor_holder_distance]),
+                translate( translate( box(2, 18, sensor_holder_distance) , [-0.85, 1, sensor_holder_distance/2]), [16, -2.5, -sensor_plate_distance-sensor_holder_distance]),
+                sensor_plate,
+                ])
+        for rotation in sensor_rotations:
+            sensor_cutter = rotate(sensor_cutter, rotation)
+            sensor_holder = rotate(sensor_holder, rotation)
+        sensor_holder = difference(sensor_holder, [bearings])
+
+        # shape = union([outer_shell, trackball, box_cutter])
+        shape = difference(union([outer_shell]), [trackball_hole, box_cutter, cylinder_cutter, bearings, sensor_cutter])
+        shape = union([shape, sensor_holder])
+        cutter = union([shape, sphere(trackball_radius+2), bearings])
+        # shape = union([shape, sphere(trackball_radius), bearings])
+        # shape = union([shape, bearings])
+        shape = rotate(rotate(translate(shape, [0, 0, 22]), [0,0,7]), [0,-3,0])
+        cutter = rotate(rotate(translate(cutter, [0, 0, 22]), [0,0,7]), [0,-3,0])
+        import solid as sl
+        # shape = sl.color([0.5,0.5,0],0.8)(shape)
+        # shape = rotate(shape, [25,7,-5])
+        export_file(shape, "things/trackball_holder")
+        return shape, cutter
 
     def trackball_socket(btus=False,segments=100, side="right"):
         # shape = sphere(ball_diameter / 2)
@@ -1375,9 +1443,12 @@ def make_dactyl():
         # # shape = union([shape, import_file(sens_file)])
         # cutter = import_file(tbcut_file)
 
-        shape = import_file(tb_file)
+        # shape = import_file(tb_file)
+        shape, cutter = trackball_holder()
         sensor = import_file(sens_file)
-        cutter = import_file(tbcut_file)
+        # shape = box(1,1,1)
+        # sensor = box(1,1,1)
+        cutter = box(1,1,1)
         if not btus:
             cutter = union([cutter, import_file(senscut_file)])
 
@@ -1397,12 +1468,6 @@ def make_dactyl():
             tb_t_offset = tb_btu_socket_translation_offset
             tb_r_offset = tb_btu_socket_rotation_offset
 
-        precut = trackball_cutout()
-        precut = rotate(precut, tb_r_offset)
-        precut = translate(precut, tb_t_offset)
-        precut = rotate(precut, rot)
-        precut = translate(precut, pos)
-
         shape, cutout, _ = trackball_socket(btus=use_btus(cluster))
 
         shape = rotate(shape, tb_r_offset)
@@ -1420,30 +1485,9 @@ def make_dactyl():
         cutout = rotate(cutout, rot)
         cutout = translate(cutout, pos)
 
-        ##
-        sensor = union([
-                translate( box(32.5, 16, 24) , [-1.75, 2, -19]),
-                translate( translate( box(2, 16, 10) , [-1, 2, -3]), [-16, 0, 0]),
-                translate( translate( box(2, 16, 10) , [-2.5, 2, -3]), [16, 0, 0])
-                ])
-        sensor = rotate(sensor, [0, 5, 0])
-        sensor = rotate(sensor, tb_r_offset)
-        sensor = translate(sensor, tb_t_offset)
-
-        ##
-        sensor = translate(sensor, (0, 0, .005))
-        sensor = rotate(sensor, rot)
-        sensor = translate(sensor, pos)
-
         
-        ball = trackball_ball()
-        ball = rotate(ball, tb_r_offset)
-        ball = translate(ball, tb_t_offset)
-        ball = rotate(ball, rot)
-        ball = translate(ball, pos)
-
         # return precut, shape, cutout, ball
-        return precut, shape, cutout, sensor, ball
+        return None, shape, cutout, None, None
 
 
     def generate_trackball_in_cluster(cluster):
@@ -1949,7 +1993,7 @@ def make_dactyl():
             translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0], so[6][1], so[6][2] + offset)),  # thumb cluster
         ]
         if side=='right':
-            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-50, so[6][1]+52, so[6][2] + offset))) # extra screw on right side
+            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-69, so[6][1]+52, so[6][2] + offset))) # extra screw on right side
         else:
             shape.append(
             translate(screw_insert(3, lastrow, bottom_radius, top_radius, height, side=side, hole=hole),
@@ -2092,13 +2136,12 @@ def make_dactyl():
                     shape = add([shape, ball])
 
             elif cluster(side).is_tb:
-                tbprecut, tb, tbcutout, sensor, ball = generate_trackball_in_cluster(cluster(side))
+                _, tb, tbcutout, sensor, _ = generate_trackball_in_cluster(cluster(side))
 
-                shape = difference(shape, [tbprecut])
                 if cluster(side).has_btus():
                     shape = difference(shape, [tbcutout])
                     shape = union([shape, tb])
-                    shape = union([shape, sensor])
+                    # shape = union([shape, sensor])
                 else:
                     # export_file(shape=shape, fname=path.join(save_path, config_name + r"_test_1"))
                     shape = union([shape, tb])
@@ -2108,8 +2151,8 @@ def make_dactyl():
                     # export_file(shape=add([shape, sensor]), fname=path.join(save_path, config_name + r"_test_3b"))
                     shape = union([shape, sensor])
 
-                if show_caps:
-                    shape = add([shape, ball])
+                # if show_caps:
+                #     shape = add([shape, ball])
 
         floor = translate(box(400, 400, 40), (0, 0, -20))
         shape = difference(shape, [floor])
@@ -2353,16 +2396,113 @@ def make_dactyl():
 
 
 def make_btu2static():
-    shape = cylinder(12.6/2, 6)
-    bearing = translate(cylinder(3/2, 3), [0,0,3])
+    shape = cylinder(14/2, 2.5)
+    bearing = translate(cylinder(3/1.75, 4), [0,0,1])
     shape = difference(shape, [ bearing ])
     # shape = union([shape, bearing])
     export_file(shape, fname="things/btu2static")
 #
+
+def make_chair_corner_adapter():
+    # extrude_poly()
+    from euclid3 import Point2
+    corner_length = 20
+    depth = 10
+    retract = 10
+    back_length = 46.25
+    inner_depth = 35
+    wiggle_length = 2.5
+    wiggle_depth = 0.25
+    nuts_position = 20
+    nuts_width = 16
+    nuts_depth = 6
+    x = 0
+    y = 0
+    outline = list()
+    box = list()
+    outline.append(Point2(x, y))
+    box.append(Point2(x,y))
+    x += corner_length
+    outline.append(Point2(x, y))
+    x -= retract
+    y += depth+wiggle_depth
+    outline.append(Point2(x, y))
+    x += back_length+wiggle_length
+    outline.append(Point2(x, y))
+    x -= retract
+    y -= depth+wiggle_depth
+    outline.append(Point2(x, y))
+    x += nuts_position
+    outline.append(Point2(x, y))
+    y += nuts_depth
+    outline.append(Point2(x, y))
+    x += nuts_width
+    outline.append(Point2(x, y))
+    y -= nuts_depth
+    outline.append(Point2(x, y))
+    x += -nuts_position - nuts_width + corner_length + inner_depth
+    outline.append(Point2(x, y))
+    box.append(Point2(x,y))
+    y += corner_length
+    outline.append(Point2(x, y))
+    x += depth
+    y -= retract
+    outline.append(Point2(x, y))
+    y += back_length
+    outline.append(Point2(x, y))
+    x -= depth
+    y -= retract
+    outline.append(Point2(x, y))
+    y += corner_length
+    outline.append(Point2(x, y))
+    box.append(Point2(x,y))
+    x -= corner_length
+    outline.append(Point2(x, y))
+    box.append(Point2(x,y))
+    x = 0
+    y = corner_length
+    outline.append(Point2(x, y))
+    box.append(Point2(x,y))
+
+    holder_height = 50
+    holder = sl.linear_extrude(height=holder_height)(sl.polygon(outline))
+    top_height = 12
+    top = translate(sl.linear_extrude(height=top_height)(sl.polygon(box)), [0,0, holder_height])
+    shape = union([holder, top])
+
+    export_file(shape, fname="things/chair_corner_adapter")
+
+def make_chair_sides_coupler():
+    length = 45
+    block_length = 18
+    height = 5
+    screw_hole_radius = 3
+    body_length = 130
+    body_width = 38
+    coupler1 = translate(box(2*block_length+length,block_length,height), [block_length+length/2, block_length/2, height/2])
+    coupler1 = difference(coupler1, [
+            translate(cylinder(screw_hole_radius,height+1), [block_length/2, block_length/2, height/2]),
+            translate(cylinder(screw_hole_radius,height+1), [block_length+length+block_length/2, block_length/2, height/2])
+       
+        ])
+    coupler2 = translate(box(2*block_length+length,block_length,height), [block_length+length/2, block_length/2, height/2])
+    coupler2 = difference(coupler2, [
+            translate(cylinder(screw_hole_radius,height+1), [block_length/2, block_length/2, height/2]),
+            translate(cylinder(screw_hole_radius,height+1), [block_length+length+block_length/2, block_length/2, height/2])
+        ])
+    coupler2 = translate(coupler2, [0,body_length,0])
+    body = translate(box(body_width, body_length, height), [block_length+length/2, body_length/2+block_length,height/2])
+    shape = union([coupler1, coupler2, body])
+
+    export_file(shape, fname="things/chair_sides_coupler")
+
 if __name__ == '__main__':
     make_dactyl()
 
-    make_btu2static()
+    if ENGINE == "solid":
+        make_btu2static()
+        make_chair_corner_adapter()
+        make_chair_sides_coupler()
 
     # base = baseplate()
     # export_file(shape=base, fname=path.join(save_path, config_name + r"_plate"))

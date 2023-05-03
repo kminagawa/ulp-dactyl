@@ -1,17 +1,17 @@
 {
-  "ENGINE": "cadquery",
+  "ENGINE": "solid",
   "branch": "",
   "save_dir": ".",
   "overrides": "",
   "save_name": "",
   "config_name": "jonboh",
   "logo_file": null,
-  "show_caps": false,
+  "show_caps": true,
   "show_pcbs": false,
   "resin": false,
   "nrows": 3,
   "ncols": 5,
-  "alpha": 0.39,
+  "alpha": 0.69,
   "beta": 0.08726638888888888,
   "centercol": 3,
   "centerrow_offset": 2,
@@ -98,11 +98,11 @@
   "pinky_1_5U": false,
   "first_1_5U_row": 0,
   "last_1_5U_row": 5,
-  "extra_width": 0.5,
+  "extra_width": 1,
   "extra_height": -0.5,
-  "wall_z_offset": 1.5,
+  "wall_z_offset": 5,
   "wall_x_offset": 1,
-  "wall_y_offset": 3,
+  "wall_y_offset": 5,
   "left_wall_x_offset": 8,
   "left_wall_z_offset": 3,
   "left_wall_lower_y_offset": 0,
@@ -152,7 +152,7 @@
   "sa_length": 18.5,
   "sa_double_length": 37.5,
   "plate_thickness": 4.6,
-  "plate_rim": 2.0,
+  "plate_rim": 2,
   "clip_thickness": 1.4,
   "clip_undercut": 1.0,
   "undercut_transition": 0.2,
@@ -182,7 +182,7 @@
   "screws_offset": "INSIDE",
   "magnet_bottom": false,
   "block_bottoms": false,
-  "screw_insert_height": 4.5,
+  "screw_insert_height": 7,
   "screw_insert_bottom_radius": 2.05,
   "screw_insert_top_radius": 1.95,
   "wire_post_height": 7,
@@ -194,9 +194,9 @@
   "external_holder_width": 19,
   "blackpill_holder_width": 32.0,
   "blackpill_holder_xoffset": -6.5,
-  "external_holder_xoffset": -7,
+  "external_holder_xoffset": -28,
   "external_holder_yoffset": 5,
-  "external_holder_rotation": [0, 0, 15],
+  "external_holder_rotation": [0, 0, 0],
   "usb_c_width": 9.5,
   "usb_c_height": 3.5,
   "usb_c_xoffset": -3,
@@ -276,23 +276,23 @@
   ],
   "screw_offsets": [
     [
-      6,
-      9.5,
+      16,
+      10.5,
       0
     ],
     [
-      7.5,
-      -29,
+      2,
+      0,
       0
     ],
     [
-      -73,
+      -65,
       -22,
       0
     ],
     [
-      -9,
-      7,
+      -5,
+      -1,
       0
     ],
     [
@@ -302,12 +302,12 @@
     ],
     [
       -5,
-      -34,
+      -45,
       0
     ],
     [
-      -20,
-      -9,
+      -21,
+      6,
       0
     ]
   ],
