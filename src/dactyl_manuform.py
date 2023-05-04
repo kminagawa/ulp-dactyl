@@ -461,6 +461,34 @@ def make_dactyl():
     ## SA Keycaps ##
     ################
 
+    def dsa_cap(Usize=1):
+        bl2 = 18.5 / 2
+        bw2 = 18.5 / 2
+        m = 15 / 2
+        pl2 = 6
+        pw2 = 6
+        key_height = 8
+
+        k1 = polyline([(bw2, bl2), (bw2, -bl2), (-bw2, -bl2), (-bw2, bl2), (bw2, bl2)])
+        k1 = extrude_poly(outer_poly=k1, height=0.1)
+        k1 = translate(k1, (0, 0, 0.05))
+        k2 = polyline([(pw2, pl2), (pw2, -pl2), (-pw2, -pl2), (-pw2, pl2), (pw2, pl2)])
+        k2 = extrude_poly(outer_poly=k2, height=0.1)
+        k2 = translate(k2, (0, 0, key_height))
+        if m > 0:
+            m1 = polyline([(m, m), (m, -m), (-m, -m), (-m, m), (m, m)])
+            m1 = extrude_poly(outer_poly=m1, height=0.1)
+            m1 = translate(m1, (0, 0, 5.0))
+            key_cap = hull_from_shapes((k1, k2, m1))
+        else:
+            key_cap = hull_from_shapes((k1, k2))
+
+        key_cap = translate(key_cap, (0, 0, 6 + plate_thickness))
+
+        if show_pcbs:
+            key_cap = add([key_cap, key_pcb()])
+
+        return key_cap
 
     def sa_cap(Usize=1):
         # MODIFIED TO NOT HAVE THE ROTATION.  NEEDS ROTATION DURING ASSEMBLY
@@ -508,7 +536,7 @@ def make_dactyl():
         else:
             key_cap = hull_from_shapes((k1, k2))
 
-        key_cap = translate(key_cap, (0, 0, 5 + plate_thickness))
+        key_cap = translate(key_cap, (0, 0, 6 + plate_thickness))
 
         if show_pcbs:
             key_cap = add([key_cap, key_pcb()])
@@ -703,9 +731,9 @@ def make_dactyl():
             for row in range(nrows):
                 if valid_key(column, row):
                     if caps is None:
-                        caps = key_place(sa_cap(size), column, row)
+                        caps = key_place(dsa_cap(size), column, row)
                     else:
-                        caps = add([caps, key_place(sa_cap(size), column, row)])
+                        caps = add([caps, key_place(dsa_cap(size), column, row)])
 
         return caps
 
@@ -1993,7 +2021,7 @@ def make_dactyl():
             translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0], so[6][1], so[6][2] + offset)),  # thumb cluster
         ]
         if side=='right':
-            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-69, so[6][1]+52, so[6][2] + offset))) # extra screw on right side
+            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-87, so[6][1]+43, so[6][2] + offset))) # extra screw on right side
         else:
             shape.append(
             translate(screw_insert(3, lastrow, bottom_radius, top_radius, height, side=side, hole=hole),
@@ -2483,7 +2511,6 @@ def make_chair_sides_coupler():
     coupler1 = difference(coupler1, [
             translate(cylinder(screw_hole_radius,height+1), [block_length/2, block_length/2, height/2]),
             translate(cylinder(screw_hole_radius,height+1), [block_length+length+block_length/2, block_length/2, height/2])
-       
         ])
     coupler2 = translate(box(2*block_length+length,block_length,height), [block_length+length/2, block_length/2, height/2])
     coupler2 = difference(coupler2, [
