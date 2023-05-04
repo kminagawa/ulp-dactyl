@@ -1476,7 +1476,7 @@ def make_dactyl():
         sensor = import_file(sens_file)
         # shape = box(1,1,1)
         # sensor = box(1,1,1)
-        cutter = box(1,1,1)
+        # cutter = box(1,1,1)
         if not btus:
             cutter = union([cutter, import_file(senscut_file)])
 
