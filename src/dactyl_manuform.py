@@ -1400,7 +1400,7 @@ def make_dactyl():
         bearing_zrotation_offset = -15
         sensor_rotations = ([0,0,-125],[-25,0,0],[0,2,0],[0,25,0])
         trackball_hole_radius = trackball_radius+ball_spacing
-        holder_back_thickness = 48
+        holder_back_thickness = 52
         outer_shell = sphere(outer_shell_radius)
         trackball_hole = sphere(trackball_hole_radius)
         box_cutter = translate(box(100,100,100), [0,0, 50])
@@ -2021,7 +2021,7 @@ def make_dactyl():
             translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0], so[6][1], so[6][2] + offset)),  # thumb cluster
         ]
         if side=='right':
-            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-87, so[6][1]+43, so[6][2] + offset))) # extra screw on right side
+            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-87, so[6][1]+51, so[6][2] + offset))) # extra screw on right side
         else:
             shape.append(
             translate(screw_insert(3, lastrow, bottom_radius, top_radius, height, side=side, hole=hole),

@@ -13,7 +13,7 @@ class TrackballJonboh(DefaultCluster):
     rotation_offset = [
         25,
         7,
-        40
+        22
     ]
     ball_wall_thickness = 2
     ball_gap = 5
@@ -50,7 +50,10 @@ class TrackballJonboh(DefaultCluster):
 
     def position_rotation(self):
         rot = [10, -15, 5]
-        pos = self.thumborigin()
+        pos = self.thumborigin() 
+        pos[0] -= 1
+        pos[1] -= 1
+        pos[2] += 3.5
         # Changes size based on key diameter around ball, shifting off of the top left cluster key.
         shift = [-.9 * self.key_diameter/2 + 27 - 42, -.1 * self.key_diameter / 2 + 3 - 20, -5]
         for i in range(len(pos)):
