@@ -2441,21 +2441,21 @@ def make_chair_sides_coupler():
     distance_between_screws = 36
     height = 5
     screw_hole_diameter = 5
-    body_length = 210
+    body_length = 140
     connection_width = 14
-    top_plate = translate(box(connection_width, 170+70, 1), [extra_width_from_holes+distance_between_screws/2, 105, 10])
-    under_plate =translate(box(connection_width, 170+70-30, 1), [extra_width_from_holes+distance_between_screws/2, 105, 0]) 
+    top_plate = translate(box(connection_width, 170, 1), [extra_width_from_holes+distance_between_screws/2, 70, 10])
+    under_plate =translate(box(connection_width, 170-30, 1), [extra_width_from_holes+distance_between_screws/2, 70, 0]) 
     connection = hull_from_shapes([top_plate, under_plate])
 
     body = translate(box(distance_between_screws+2*extra_width_from_holes,body_length,height), [distance_between_screws/2+extra_width_from_holes, body_length/2, -height/2])
     holes = union([
-            translate(cylinder(screw_hole_diameter/2,height+1), [extra_width_from_holes, 205, -height/2]),
-            translate(cylinder(screw_hole_diameter/2,height+1), [extra_width_from_holes+distance_between_screws, 205, -height/2]),
+            translate(cylinder(screw_hole_diameter/2,height+1), [extra_width_from_holes, 130, -height/2]),
+            translate(cylinder(screw_hole_diameter/2,height+1), [extra_width_from_holes+distance_between_screws, 130, -height/2]),
 
             translate(cylinder(screw_hole_diameter/2,height+1), [extra_width_from_holes, body_length/2, -height/2]),
             translate(cylinder(screw_hole_diameter/2,height+1), [extra_width_from_holes+distance_between_screws, body_length/2, -height/2]),
-            translate(cylinder(screw_hole_diameter/2,height+1), [extra_width_from_holes, 5, -height/2]),
-            translate(cylinder(screw_hole_diameter/2,height+1), [extra_width_from_holes+distance_between_screws, 5, -height/2]),
+            translate(cylinder(screw_hole_diameter/2,height+1), [extra_width_from_holes, 10, -height/2]),
+            translate(cylinder(screw_hole_diameter/2,height+1), [extra_width_from_holes+distance_between_screws, 10, -height/2]),
         ])
     shape = difference(union([body,connection]), [holes])
     export_file(shape, fname="things/chair_sides_coupler")
@@ -2540,7 +2540,7 @@ def make_chair_corner_adapter():
     corner_length = 20
     depth = 10
     retract = 10
-    back_length = 46.25
+    back_length = 85
     inner_depth = 35
     wiggle_length = 1.95
     wiggle_depth = 0.
@@ -2602,7 +2602,7 @@ def make_chair_corner_adapter():
     box_outline.append(Point2(x,y))
 
     holder_height = 30
-    holder = sl.linear_extrude(height=holder_height)(sl.polygon(outline))
+    holder = sl.linear_extrude(height=30+holder_height)(sl.polygon(outline))
     top_height = 6
     top = translate(sl.linear_extrude(height=top_height)(sl.polygon(box_outline)), [0,0, holder_height])
     bottom = translate(box(depth+wiggle_depth*2, back_length+wiggle_length*2, top_height), 
@@ -2620,13 +2620,13 @@ def make_chair_corner_adapter():
     x+=3*depth
     outline.append(Point2(x, y))
     box_outline.append(Point2(x, y))
-    y = back_length+2*corner_length
+    y = back_length+2.75*corner_length
     outline.append(Point2(x, y))
     box_outline.append(Point2(x, y))
     x = 0
     outline.append(Point2(x, y))
     box_outline.append(Point2(x, y))
-    y-=corner_length*2.5
+    y-=corner_length*1.5
     outline.append(Point2(x, y))
     y+= retract
     x-=depth
@@ -2656,41 +2656,36 @@ def make_chair_plates():
     screwbody_width = 5
     topwasher_diameter = 10
     holes = union([
-            # translate(cylinder((screwbody_width+1)/2, 100), [115, 65, 0]),
-            # translate(cylinder((screwbody_width+1)/2, 100), [115, 65, 0]),
-            translate(cylinder((screwbody_width+1)/2, 100), [150, -65, 0]),
-            translate(cylinder((screwbody_width+1)/2, 100), [150, 135, 0]),
-            translate(cylinder((screwbody_width+1)/2, 100), [150, 35, 0]),
-            translate(cylinder((topwasher_diameter+1)/2, screwhead_height+0.5), [150, -65, +1/2-screwhead_height/2]),
-            translate(cylinder((topwasher_diameter+1)/2, screwhead_height+0.5), [150, 135, +1/2-screwhead_height/2]),
-            translate(cylinder((topwasher_diameter+1)/2, screwhead_height+0.5), [150, 35, +1/2-screwhead_height/2]),
-            # translate(cylinder((topwasher_diameter+1)/2, screwhead_height+0.5), [-75, 65, thickness/2-screwhead_height/2]),
-            # translate(cylinder((topwasher_diameter+1)/2, screwhead_height+0.5), [-75, -65, thickness/2-screwhead_height/2]),
-            # translate(cylinder((topwasher_diameter+1)/2, screwhead_height+0.5), [75, -65, thickness/2-screwhead_height/2])
+            translate(cylinder((screwbody_width+1)/2, 100), [150, -30, 0]),
+            translate(cylinder((screwbody_width+1)/2, 100), [150, -90, 0]),
+            translate(cylinder((screwbody_width+1)/2, 100), [150, 30, 0]),
+            translate(cylinder((topwasher_diameter+1)/2, screwhead_height+0.5), [150, -30, +1/2-screwhead_height/2]),
+            translate(cylinder((topwasher_diameter+1)/2, screwhead_height+0.5), [150, -90, +1/2-screwhead_height/2]),
+            translate(cylinder((topwasher_diameter+1)/2, screwhead_height+0.5), [150, 30, +1/2-screwhead_height/2]),
         ])
-    top_plate = translate(box(170+80, 170+70, 1), [35, 35, 0])
-    under_plate =translate(box(170+80-20, 170+70-30, 1), [45, 35, -thickness]) 
+    top_plate = translate(box(170+80, 170, 1), [35, -30, 0])
+    under_plate =translate(box(170+80-20, 170-30, 1), [45, -30, -thickness]) 
     plate = hull_from_shapes([top_plate, under_plate])
     shape = difference(plate, [holes])
     # shape = union([shape, holes])
     # shape = union([plate, underside, holesunderside_cut])
     _, connector = make_chair_corner_adapter()
-    corner = translate(connector, [-90,-70, -30+0.5])
+    corner = translate(connector, [-90,-100, -30+0.5])
     shape = union([shape, corner])
     
-    corner_plate_0 = [140,-65,-10]
-    corner_plate_1 = [140,0,-10]
-    corner_plate_2 = [140,65,-10]
-    corner_plate_3 = [140,135,-10]
-    corner_plate_4 = [25,135,-10]
-    corner_plate_5 = [-60,135,-10]
+    corner_plate_0 = [135,-90,-10]
+    corner_plate_1 = [135,-55,-10]
+    corner_plate_2 = [135,-5,-10]
+    corner_plate_3 = [135,30,-10]
+    corner_plate_4 = [25,30,-10]
+    corner_plate_5 = [-60,30,-10]
     # corner_plate_1 = 
     # corner_plate_2 = 
     # corner_plate_3 = 
-    corner_holder_0 = [-60, -65, -27]
-    corner_holder_1 = [-60, -40, -27]
-    corner_holder_2 = [-60, -15, -27]
-    corner_holder_3 = [-60, 10, -27]
+    corner_holder_0 = [-60, -90, -27]
+    corner_holder_1 = [-60, -75, -27]
+    corner_holder_2 = [-60, -35, -27]
+    corner_holder_3 = [-60, -10, -27]
     # corner_holder_1 = [-68, 62, -45]
 
     shape = union([shape, 
@@ -2743,41 +2738,58 @@ def make_table_holder():
     # Holder body
     connector, _ = make_chair_corner_adapter()
     connector = difference(connector, [
-            translate(box(75.1,20,100), [37.5, 0, 0]),
-            translate(box(50.1,81,100), [25,40,0])
+            translate(box(200,10.1,200), [100,5,0]),
+            translate(box(105,155,200), [40,40,0])
         ])
+    connector = translate(connector, [-40,0,0])
     connector = rotate(connector, [0,0,60])
-    # connector =translate(connector, [63.5,-60.5,0])
-    connector =translate(connector, [63.5,-60.5,-50-36])
-    hull_connector = hull_from_shapes([
-            translate(box(1,1,1), [27.5,25,25]),
-            translate(box(1,1,1), [27.5,25,-86+0.5]),
-            translate(box(1,1,1), [27.5,-12.5,25]),
+    connector =translate(connector, [63.5,-60.5,-75-36])
+    hull_connector0 = hull_from_shapes([
+            translate(box(1,1,1), [-30+0.5,20,-0.5]),
+            translate(box(1,1,1), [30-0.5,20,-0.5]),
+            translate(box(1,1,1), [-9,45,-50]),
+            translate(box(1,1,1), [-9,45,-75-36+0.5]),
+            translate(box(1,1,1), [37.5,18,-50]),
+        ])
+    hull_connector1 = hull_from_shapes([
+            translate(box(1,1,1), [17,30,-75-36+0.5]),
             translate(box(1,1,1), [82.5,-7.5,-50]),
-            translate(box(1,1,1), [82.5,-7.5,-86+0.5]),
-            translate(box(1,1,1), [82.5,-12.5,-50]),
-            translate(box(1,1,1), [82.5,-12.5,-86+0.5]),
-            translate(box(1,1,1), [20,-7.5,-86+0.5]),
-            # translate(rotate(box(12.5,70,86), [0,0,-105]), [55,14,-43]),
-            # translate(rotate(box(12.5,70,86), [0,0,-75]), [55,-7.5,-43]),
+            translate(box(1,1,1), [82.5,-7.5,-75-36+0.5]),
+            translate(box(1,1,1), [77.5,-27,-75-36+0.5]),
+            translate(box(1,1,1), [30,-50,47.5-0.5]),
+            translate(box(1,1,1), [30,-50,-15]),
+            translate(box(1,1,1), [30,22.5-0.5,47.5-0.5]),
     
         ])
+    hull_connector2 = hull_from_shapes([
+            translate(box(1,1,1), [-30+0.5,20,-0.5]),
+            translate(box(1,1,1), [-15+0.5,20,-0.5]),
+            translate(box(1,1,1), [-30+0.5,0,-0.5]),
+            translate(box(1,1,1), [-9,45,-75-36+0.5]),
+            translate(box(1,1,1), [0,40,-75-36+0.5]),
+        ])
     hull_connector = union([
-        hull_connector,
-            translate(box(12.5,30,50+36), [-6.25+30,22.5,-43]),
+        hull_connector0,
+        hull_connector1,
+        hull_connector2
+            # translate(box(12.5,30,50+36), [-6.25+30,22.5,-43]),
         ])
     connector = union([connector, hull_connector])
     # Clamp body
     hole = cylinder(r=inner_rad+0.6, h=screw_height)+s1
     hole = translate(hole, [0,0,-screw_height/2])
+    top_hole = translate(box(14.5, 50, 3), [-5, 0, 2.5/2+35])
     # holder_bottom = difference(translate(box(40,40,15), [0,0,7.5]), [hole]) 
     holder_bottom = difference(
             translate(box(60,75,12.5), [0,0,-6.25]), 
-            [translate(hole, [0, -17.5, 0]) , 
-            translate(hole, [0, 17.5, 0]) ])
-    holder_top = translate(box(60,75,12.5), [0,0,35+6.25])
+            [
+                translate(hole, [-5, -17.5, 0]), 
+                translate(hole, [-5, 17.5, 0]),
+            ])
+    holder_top = difference(translate(box(60,75,12.5), [0,0,35+6.25]), [top_hole])
     holder_vertical = translate(box(12.5, 75, 35), [30-6.25,0, 35/2])
-    holder = union([holder_top, holder_bottom, holder_vertical, connector])
+    holder = translate(union([holder_top, holder_bottom, holder_vertical]), [0,-15,0])
+    holder = union([holder, connector])
     # holder = connector
     export_file(holder, fname="things/table_holder")
 
