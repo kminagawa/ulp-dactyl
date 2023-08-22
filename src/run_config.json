@@ -15,7 +15,7 @@
   "beta": 0.08726638888888888,
   "centercol": 3,
   "centerrow_offset": 2,
-  "tenting_angle": 0.83,
+  "tenting_angle": 0.73,
   "symmetry": "symmetric",
   "column_style_gt5": "orthographic",
   "column_style": "standard",
@@ -23,7 +23,7 @@
   "inner_column": false,
   "all_last_rows": true,
   "full_last_rows": true,
-  "keyboard_z_offset": 20.5,
+  "keyboard_z_offset": 23.5,
   "thumb_style": "TRACKBALL_JONBOH",
   "right_side_only": false,
   "default_1U_cluster": true,
@@ -98,8 +98,8 @@
   "pinky_1_5U": false,
   "first_1_5U_row": 0,
   "last_1_5U_row": 5,
-  "extra_width": 1,
-  "extra_height": -0.5,
+  "extra_width": 0.5,
+  "extra_height": -5,
   "wall_z_offset": 5,
   "wall_x_offset": 1,
   "wall_y_offset": 5,
@@ -140,7 +140,7 @@
     17.5
   ],
   "fixed_tenting": 0.0,
-  "plate_style": "NOTCH",
+  "plate_style": "HOLE",
   "hole_keyswitch_height": 14.0,
   "hole_keyswitch_width": 14.0,
   "nub_keyswitch_height": 14.4,
@@ -151,8 +151,9 @@
   "sa_profile_key_height": 12.7,
   "sa_length": 18.5,
   "sa_double_length": 37.5,
-  "plate_thickness": 4.6,
-  "plate_rim": 2,
+  "plate_thickness": 1.25,
+  "plate_rim_width": 2.75,
+  "plate_rim_height": 1.75,
   "clip_thickness": 1.4,
   "clip_undercut": 1.0,
   "undercut_transition": 0.2,
@@ -245,12 +246,12 @@
     ],
     [
       0,
-      -5,
+      -7,
       0
     ],
     [
       0,
-      -23,
+      -27,
       2.5
     ],
     [
@@ -277,7 +278,7 @@
   "screw_offsets": [
     [
       16,
-      10.5,
+      11.5,
       0
     ],
     [
@@ -286,7 +287,7 @@
       0
     ],
     [
-      -80,
+      -90,
       -15,
       0
     ],
@@ -302,7 +303,7 @@
     ],
     [
       -5,
-      -40,
+      -35,
       0
     ],
     [

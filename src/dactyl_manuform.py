@@ -239,8 +239,8 @@ def make_dactyl():
     if (trackball_in_wall or ('TRACKBALL' in thumb_style)) and not ball_side == 'both':
         symmetry = "asymmetric"
 
-    mount_width = keyswitch_width + 2 * plate_rim
-    mount_height = keyswitch_height + 2 * plate_rim
+    mount_width = keyswitch_width + 2 * plate_rim_width
+    mount_height = keyswitch_height + 2 * plate_rim_width
     mount_thickness = plate_thickness
 
     if default_1U_cluster and thumb_style == 'DEFAULT':
@@ -462,6 +462,35 @@ def make_dactyl():
     ################
     ## SA Keycaps ##
     ################
+
+    def choc_cap(Usize=1):
+        bl2 = 16.75 / 2
+        bw2 = 16.75 / 2
+        m = 16.25 / 2
+        pl2 = 6
+        pw2 = 6
+        key_height = 3.7
+
+        k1 = polyline([(bw2, bl2), (bw2, -bl2), (-bw2, -bl2), (-bw2, bl2), (bw2, bl2)])
+        k1 = extrude_poly(outer_poly=k1, height=0.1)
+        k1 = translate(k1, (0, 0, 0.05))
+        k2 = polyline([(pw2, pl2), (pw2, -pl2), (-pw2, -pl2), (-pw2, pl2), (pw2, pl2)])
+        k2 = extrude_poly(outer_poly=k2, height=0.1)
+        k2 = translate(k2, (0, 0, key_height))
+        if m > 0:
+            m1 = polyline([(m, m), (m, -m), (-m, -m), (-m, m), (m, m)])
+            m1 = extrude_poly(outer_poly=m1, height=0.1)
+            m1 = translate(m1, (0, 0, 5.0))
+            key_cap = hull_from_shapes((k1, k2, m1))
+        else:
+            key_cap = hull_from_shapes((k1, k2))
+
+        key_cap = translate(key_cap, (0, 0, 5.5 + plate_thickness))
+
+        if show_pcbs:
+            key_cap = add([key_cap, key_pcb()])
+
+        return key_cap
 
     def dsa_cap(Usize=1):
         bl2 = 18.5 / 2
@@ -733,9 +762,9 @@ def make_dactyl():
             for row in range(nrows):
                 if valid_key(column, row):
                     if caps is None:
-                        caps = key_place(dsa_cap(size), column, row)
+                        caps = key_place(choc_cap(size), column, row)
                     else:
-                        caps = add([caps, key_place(dsa_cap(size), column, row)])
+                        caps = add([caps, key_place(choc_cap(size), column, row)])
 
         return caps
 
@@ -2834,6 +2863,5 @@ if __name__ == '__main__':
         make_bltouch_adapter()
         make_table_holder()
         make_chair_coupler()
-
     # base = baseplate()
     # export_file(shape=base, fname=path.join(save_path, config_name + r"_plate"))

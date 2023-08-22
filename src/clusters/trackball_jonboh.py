@@ -102,7 +102,7 @@ class TrackballJonboh(DefaultCluster):
         return union([])
 
     def thumbcaps(self, side='right'):
-        t1 = self.thumb_1x_layout(dsa_cap(1))
+        t1 = self.thumb_1x_layout(choc_cap(1))
         return t1
 
     def tb_post(self, angle):

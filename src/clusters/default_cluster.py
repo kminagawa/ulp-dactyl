@@ -6,9 +6,9 @@ class DefaultCluster(object):
     num_keys = 6
     is_tb = False
     thumb_offsets = [
-        8,
+        1,
         0,
-        9
+        7
     ]
     thumb_plate_tr_rotation = 0
     thumb_plate_tl_rotation = 0
@@ -69,7 +69,7 @@ class DefaultCluster(object):
 
     def tl_place(self, shape):
         debugprint('tl_place()')
-        shape = rotate(shape, [27.5, -18, 10])
+        shape = rotate(shape, [27.5, -18, 18])
         shape = translate(shape, [-42.5, 1, 15])
         shape = self.thumb_place(shape)
         return shape
@@ -177,14 +177,14 @@ class DefaultCluster(object):
                 return union(shape_list)
 
     def thumbcaps(self, side='right'):
-        t1 = self.thumb_1x_layout(dsa_cap(1), cap=True)
+        t1 = self.thumb_1x_layout(choc_cap(1), cap=True)
         if not default_1U_cluster:
-            t1.add(self.thumb_15x_layout(dsa_cap(1.5), cap=True))
+            t1.add(self.thumb_15x_layout(choc_cap(1.5), cap=True))
         return t1
 
     def thumb(self, side="right"):
         print('thumb()')
-        shape = self.thumb_1x_layout(rotate(single_plate(side=side), (0, 0, -90)))
+        shape = self.thumb_1x_layout(single_plate(side=side))
         shape = union([shape, self.thumb_15x_layout(rotate(single_plate(side=side), (0, 0, -90)))])
         # shape = union([shape, self.thumb_15x_layout(double_plate(), plate=False)])
 
@@ -303,8 +303,17 @@ class DefaultCluster(object):
         hulls.append(
             triangle_hulls(
                 [
+                    self.tr_place(web_post_tl()),
+                    self.tl_place(web_post_br()),
+                    self.mr_place(web_post_tr()),
+                ]
+            )
+        )
+        hulls.append(
+            triangle_hulls(
+                [
                     self.tr_place(web_post_tr()),
-                    self.mr_place(web_post_tl()),
+                    self.tr_place(web_post_tl()),
                     self.tl_place(web_post_br()),
                 ]
             )
