@@ -80,6 +80,7 @@ def make_dactyl():
 
     symmetry = None
     column_style = None
+    column_style = "fixed"
     save_path = path.join(r".", "things")
 
     matrix = {
@@ -1431,7 +1432,7 @@ def make_dactyl():
         bearing_zrotation_offset = -15
         sensor_rotations = ([0,0,-125],[-25,0,0],[0,2,0],[0,25,0])
         trackball_hole_radius = trackball_radius+ball_spacing
-        holder_back_thickness = 52
+        holder_back_thickness = 32
         outer_shell = sphere(outer_shell_radius)
         trackball_hole = sphere(trackball_hole_radius)
         box_cutter = translate(box(100,100,100), [0,0, 50])
@@ -1468,7 +1469,7 @@ def make_dactyl():
         # shape = union([shape, bearings])
         shape = rotate(rotate(translate(shape, [0, 0, 22]), [0,0,7]), [0,-3,0])
         cutter = rotate(rotate(translate(cutter, [0, 0, 22]), [0,0,7]), [0,-3,0])
-        import solid as sl
+        # import solid as sl
         # shape = sl.color([0.5,0.5,0],0.8)(shape)
         # shape = rotate(shape, [25,7,-5])
         export_file(shape, "things/trackball_holder")
@@ -1508,6 +1509,7 @@ def make_dactyl():
         # shape = box(1,1,1)
         # sensor = box(1,1,1)
         # cutter = box(1,1,1)
+        # cutter = sphere(ball_diameter/2)
         if not btus:
             cutter = union([cutter, import_file(senscut_file)])
 
@@ -2052,7 +2054,7 @@ def make_dactyl():
             translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0], so[6][1], so[6][2] + offset)),  # thumb cluster
         ]
         if side=='right':
-            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-87, so[6][1]+51, so[6][2] + offset))) # extra screw on right side
+            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-92, so[6][1]+35, so[6][2] + offset))) # extra screw on right side
         else:
             shape.append(
             translate(screw_insert(3, lastrow, bottom_radius, top_radius, height, side=side, hole=hole),

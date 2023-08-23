@@ -7,13 +7,13 @@ class TrackballJonboh(DefaultCluster):
     key_diameter = 75
     translation_offset = [
         -25,
-        17,
-        13
+        12,
+        -22
     ]
     rotation_offset = [
         25,
         7,
-        22
+        45
     ]
     ball_wall_thickness = 2
     ball_gap = 5
@@ -279,22 +279,13 @@ class TrackballJonboh(DefaultCluster):
                 ]
             )
         )
-        # hulls.append(triangle_hulls([
-        #     self.bl_place(web_post_bl()),
-        #     self.bl_place(web_post_tl()),
-        #     self.track_place(translate(self.tb_post_bl(), wall_locate3(-4, 0))),
-        #     self.track_place(translate(self.tb_post_tl(), wall_locate3(-4, 0))),
-        #     ]))
-        # hulls.append(triangle_hulls([
-        #     self.bl_place(web_post_tl()),
-        #     self.track_place(translate(self.tb_post_tl(), wall_locate3(-4, 0))),
-        #     self.ml_place(web_post_tl())
-        #     ]))
-        # hulls.append(triangle_hulls([
-        #     self.track_place(self.tb_post_tr()),
-        #     self.track_place(translate(self.tb_post_tl(), wall_locate3(-4, 0))),
-        #     left_key_place(web_post(), 1, -1, low_corner=True, side=side),
-        #     ]))
+        hulls.append(
+            triangle_hulls(
+                [
+                   self.tr_place(web_post_br()),
+                   self.mr_place(web_post_br()),
+                   self.br_place(web_post_br())
+                ]))
         return union(hulls)
 
     def walls(self, side="right"):
@@ -303,8 +294,7 @@ class TrackballJonboh(DefaultCluster):
         # thumb, walls
         shapes.append( wall_brace(self.tr_place, 0, -1, web_post_br(), (lambda sh: cluster_key_place(sh, 4, lastrow)), 0,
                                   -1, web_post_bl()))
-        shapes.append(wall_brace(self.mr_place, 0, -1, web_post_br(), self.tr_place, 0, -1, web_post_br()))
-        shapes.append(wall_brace(self.mr_place, 0, -1, web_post_br(), self.br_place, 0, -1, web_post_br()))
+        shapes.append(wall_brace(self.tr_place, 0, -1, web_post_br(), self.br_place, 0, -1, web_post_br()))
         shapes.append(wall_brace(self.br_place, 0, -1, web_post_br(), self.br_place, -3, 0, web_post_bl()))
         shapes.append(wall_brace(self.br_place, -3, 0, web_post_bl(), self.bl_place, -3, 0, web_post_bl()))
         shapes.append(wall_brace(

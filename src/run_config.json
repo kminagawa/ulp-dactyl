@@ -15,7 +15,7 @@
   "beta": 0.08726638888888888,
   "centercol": 3,
   "centerrow_offset": 2,
-  "tenting_angle": 0.73,
+  "tenting_angle": 0.23,
   "symmetry": "symmetric",
   "column_style_gt5": "orthographic",
   "column_style": "standard",
@@ -23,7 +23,7 @@
   "inner_column": false,
   "all_last_rows": true,
   "full_last_rows": true,
-  "keyboard_z_offset": 23.5,
+  "keyboard_z_offset": 8,
   "thumb_style": "TRACKBALL_JONBOH",
   "right_side_only": false,
   "default_1U_cluster": true,
@@ -195,7 +195,7 @@
   "external_holder_width": 19,
   "blackpill_holder_width": 32.0,
   "blackpill_holder_xoffset": -6.5,
-  "external_holder_xoffset": -28,
+  "external_holder_xoffset": -42,
   "external_holder_yoffset": 5,
   "external_holder_rotation": [0, 0, 0],
   "usb_c_width": 9.5,
@@ -277,7 +277,7 @@
   ],
   "screw_offsets": [
     [
-      16,
+      35,
       11.5,
       0
     ],
@@ -287,7 +287,7 @@
       0
     ],
     [
-      -90,
+      -85,
       -15,
       0
     ],
@@ -307,8 +307,8 @@
       0
     ],
     [
-      -8,
-      4,
+      0,
+      12,
       0
     ]
   ],
