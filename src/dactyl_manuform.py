@@ -467,9 +467,9 @@ def make_dactyl():
     def choc_cap(Usize=1):
         bl2 = 16.75 / 2
         bw2 = 16.75 / 2
-        m = 16.25 / 2
-        pl2 = 6
-        pw2 = 6
+        m = 15.5 / 2
+        pl2 = 3.5
+        pw2 = 3.5
         key_height = 3.7
 
         k1 = polyline([(bw2, bl2), (bw2, -bl2), (-bw2, -bl2), (-bw2, bl2), (bw2, bl2)])
@@ -481,12 +481,12 @@ def make_dactyl():
         if m > 0:
             m1 = polyline([(m, m), (m, -m), (-m, -m), (-m, m), (m, m)])
             m1 = extrude_poly(outer_poly=m1, height=0.1)
-            m1 = translate(m1, (0, 0, 5.0))
+            m1 = translate(m1, (0, 0, key_height))
             key_cap = hull_from_shapes((k1, k2, m1))
         else:
             key_cap = hull_from_shapes((k1, k2))
 
-        key_cap = translate(key_cap, (0, 0, 5.5 + plate_thickness))
+        key_cap = translate(key_cap, (0, 0, 5 + plate_thickness))
 
         if show_pcbs:
             key_cap = add([key_cap, key_pcb()])
@@ -1508,7 +1508,7 @@ def make_dactyl():
         sensor = import_file(sens_file)
         # shape = box(1,1,1)
         # sensor = box(1,1,1)
-        # cutter = box(1,1,1)
+        cutter = box(1,1,1)
         # cutter = sphere(ball_diameter/2)
         if not btus:
             cutter = union([cutter, import_file(senscut_file)])
@@ -2054,7 +2054,7 @@ def make_dactyl():
             translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0], so[6][1], so[6][2] + offset)),  # thumb cluster
         ]
         if side=='right':
-            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-92, so[6][1]+35, so[6][2] + offset))) # extra screw on right side
+            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-92, so[6][1]+15, so[6][2] + offset))) # extra screw on right side
         else:
             shape.append(
             translate(screw_insert(3, lastrow, bottom_radius, top_radius, height, side=side, hole=hole),
@@ -2852,6 +2852,15 @@ def make_chair_coupler():
     shape = union([connector, walls])
     export_file(shape, fname="things/chair_coupler")
 
+def rexroth_bearing(cutter):
+    # DELETEME
+    tolerance_diameter = 0.25
+    tolerance_depth = 1.5
+    return translate(union([
+            translate(cylinder(12.6/2+tolerance_diameter, 6.4+tolerance_depth), [0,0,-3.2]),
+            cylinder(17/2+tolerance_diameter, 1.8+tolerance_depth),
+            translate(sphere(4) if not cutter else translate(cylinder(17/2+tolerance_diameter, 4), [0,0,2]), [0,0,-0.1])
+        ]), [0, 0, -0.9])
 
 if __name__ == '__main__':
     make_dactyl()
@@ -2865,5 +2874,6 @@ if __name__ == '__main__':
         make_bltouch_adapter()
         make_table_holder()
         make_chair_coupler()
+        export_file(rexroth_bearing(False), fname="things/rexroth_bearing")
     # base = baseplate()
     # export_file(shape=base, fname=path.join(save_path, config_name + r"_plate"))
