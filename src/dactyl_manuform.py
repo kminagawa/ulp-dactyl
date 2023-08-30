@@ -1046,7 +1046,8 @@ def make_dactyl():
         print("back_wall()")
         x = 0
         shapes = list()
-        shapes.append(key_wall_brace(x, 0, 0, 1, web_post_tl(), x+2, 0, 0, 1, web_post_tl(), back=True))
+        shapes.append(key_wall_brace(x, 0, 0, 1, web_post_tl(), x, 0, 0, 1, web_post_tr(), back=True))
+        shapes.append(key_wall_brace(x, 0, 0, 1, web_post_tr(), x+2, 0, 0, 1, web_post_tl(), back=True))
         shapes.append(key_wall_brace(x+2, 0, 0, 1, web_post_tl(), x+2, 0, 0, 1, web_post_tr(), back=True))
         for i in range(2, ncols - 1):
             x = i + 1
@@ -1059,11 +1060,14 @@ def make_dactyl():
         ))
 
         # extra braces for index finger wall
-        extra_braces = [triangle_hulls(
-            [key_place(web_post_tl(), 0, 0),
+        extra_braces = [
+                triangle_hulls(
+             [key_place(web_post_tl(), 1, 0),
+            key_place(web_post_tr(), 0, 0),
              key_place(web_post_tr(), 1, 0),
-             key_place(web_post_tl(), 2, 0)]
-            )]
+             key_place(web_post_tl(), 2, 0)
+             ])
+                ]
 
 
         # union all shapes into vertical and brace
@@ -1430,9 +1434,10 @@ def make_dactyl():
         sensor_plate_extra_distance = -0.75
         bearings_horizon_rotation = [10,7,31]
         bearing_zrotation_offset = -15
-        sensor_rotations = ([0,0,-125],[-25,0,0],[0,2,0],[0,25,0])
+        # sensor_rotations = ([0,0,-125],[-25,0,0],[0,2,0],[0,25,0])
+        sensor_rotations = ([0, 0, 110], [-20, 0, 0],[0, -43, 0], )
         trackball_hole_radius = trackball_radius+ball_spacing
-        holder_back_thickness = 32
+        holder_back_thickness = 2
         outer_shell = sphere(outer_shell_radius)
         trackball_hole = sphere(trackball_hole_radius)
         box_cutter = translate(box(100,100,100), [0,0, 50])
@@ -1441,9 +1446,9 @@ def make_dactyl():
         sensor_plate_distance = trackball_radius+sensor_plate_extra_distance
 
         bearings = union([
-            rotate(translate(rotate(rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate , 0, 0]), [0,-bearings_horizon_rotation[0],bearing_zrotation_offset]),
-            rotate(rotate(translate(rotate( rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate, 0, 0]), [0,-bearings_horizon_rotation[1],0]), [0, 0,bearing_zrotation_offset + 120]),
-            rotate(rotate(translate(rotate( rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate, 0, 0]), [0,-bearings_horizon_rotation[2],0]), [0, 0, bearing_zrotation_offset + 240])])
+            rotate(translate(rotate(rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate , 0, 0]), [0,-bearings_horizon_rotation[0],bearing_zrotation_offset+15]),
+            rotate(rotate(translate(rotate( rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate, 0, 0]), [0,-bearings_horizon_rotation[1],0]), [0, 5,bearing_zrotation_offset + 110]),
+            rotate(rotate(translate(rotate( rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate, 0, 0]), [0,-bearings_horizon_rotation[2],0]), [0, 0, bearing_zrotation_offset + 250])])
 
         sensor_plate = translate(translate(box(32, 21, 1), [0,0,-0.5]), [0,0, -sensor_plate_distance])
         sensor_section_sealing = translate(translate(cylinder(19, 1), [0,0,-0.5]), [0,0,-sensor_plate_distance])
@@ -1467,8 +1472,8 @@ def make_dactyl():
         cutter = union([shape, sphere(trackball_radius+2), bearings])
         # shape = union([shape, sphere(trackball_radius), bearings])
         # shape = union([shape, bearings])
-        shape = rotate(rotate(translate(shape, [0, 0, 22]), [0,0,7]), [0,-3,0])
-        cutter = rotate(rotate(translate(cutter, [0, 0, 22]), [0,0,7]), [0,-3,0])
+        shape = translate(shape, [0, 0, 22])
+        cutter =translate(cutter, [0, 0, 22])
         # import solid as sl
         # shape = sl.color([0.5,0.5,0],0.8)(shape)
         # shape = rotate(shape, [25,7,-5])
@@ -1508,7 +1513,7 @@ def make_dactyl():
         sensor = import_file(sens_file)
         # shape = box(1,1,1)
         # sensor = box(1,1,1)
-        cutter = box(1,1,1)
+        # cutter = box(1,1,1)
         # cutter = sphere(ball_diameter/2)
         if not btus:
             cutter = union([cutter, import_file(senscut_file)])
@@ -2054,7 +2059,7 @@ def make_dactyl():
             translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0], so[6][1], so[6][2] + offset)),  # thumb cluster
         ]
         if side=='right':
-            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-92, so[6][1]+15, so[6][2] + offset))) # extra screw on right side
+            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-82, so[6][1]+15, so[6][2] + offset))) # extra screw on right side
         else:
             shape.append(
             translate(screw_insert(3, lastrow, bottom_radius, top_radius, height, side=side, hole=hole),
@@ -2146,7 +2151,11 @@ def make_dactyl():
                 s2 = difference(s2, [blackpill_mount_hole()])
             if controller_mount_type in ['EXTERNAL']:
                 s2 = difference(s2, [external_mount_hole()])
-                # s2 = union([s2, external_mount_hole()])
+                if show_external_holder:
+                    holder = import_file(path.join(parts_path, r"usb_holder_w_reset"))
+                    holder = translate(
+                            translate(rotate(holder, [0,90,5]), [-8, -8, 16]), [external_start[0] + external_holder_xoffset, external_start[1] + external_holder_yoffset, 0])
+                    s2 = union([s2, holder])
 
             if controller_mount_type in ['COMPACTYL']:
                 s2 = difference(s2, [compactyl_mount_hole()])

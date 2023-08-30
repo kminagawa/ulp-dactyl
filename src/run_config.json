@@ -1,13 +1,14 @@
 {
-  "ENGINE": "solid",
+  "ENGINE": "cadquery",
   "branch": "",
   "save_dir": ".",
   "overrides": "",
   "save_name": "",
   "config_name": "jonboh",
   "logo_file": null,
-  "show_caps": true,
+  "show_caps": false,
   "show_pcbs": false,
+  "show_external_holder": false,
   "resin": false,
   "nrows": 3,
   "ncols": 5,
@@ -122,11 +123,11 @@
     -0.26179916666666664
   ],
   "fixed_x": [
-    -43.5,
-    -22.5,
+    -39.5,
+    -19,
     0,
-    20.3,
-    41.4,
+    19,
+    39,
     65.5,
     89.6
   ],

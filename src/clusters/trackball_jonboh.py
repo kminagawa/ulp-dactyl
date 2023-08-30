@@ -6,9 +6,9 @@ import os
 class TrackballJonboh(DefaultCluster):
     key_diameter = 75
     translation_offset = [
-        -25,
-        12,
-        -22
+        -17,
+        15,
+        -29
     ]
     rotation_offset = [
         25,
@@ -16,8 +16,8 @@ class TrackballJonboh(DefaultCluster):
         45
     ]
     ball_wall_thickness = 2
-    ball_gap = 5
-    tb_height = -2
+    ball_gap = 4
+    tb_height = 0
 
     @staticmethod
     def name():
@@ -106,8 +106,9 @@ class TrackballJonboh(DefaultCluster):
         return t1
 
     def tb_post(self, angle):
+        tb_side_rotation = -10
         radius = ball_diameter/2 + self.ball_wall_thickness + self.ball_gap
-        return rotate(translate(web_post(), [radius - post_adj, 0, self.tb_height]),[0,0,angle])
+        return rotate(translate(web_post(), [radius - post_adj, 0, self.tb_height]),[0,tb_side_rotation,angle])
 
 
     def tb_post_r(self):
@@ -289,12 +290,12 @@ class TrackballJonboh(DefaultCluster):
                 self.track_place,
                 -3,0, translate(self.tb_post_tl(), wall_locate3(-4, 0)),
                 self.track_place,
-                -3,0, translate(self.tb_post_bl(), wall_locate3(-4, 0)),
+                -3,0, translate(self.tb_post_bl(), wall_locate3(-4, 2)),
                 ))
         shapes.append(wall_brace(
                 self.track_place,
-                -3,0, translate(self.tb_post_bl(), wall_locate3(-4, 0)),
-                self.bl_place, -3, 0, web_post_bl()
+                -3,0, translate(self.tb_post_bl(), wall_locate3(-4, 2)),
+                self.bl_place, -3, -1, web_post_bl()
                 ))
         extra_walls = []
         extra_braces = []
@@ -314,19 +315,11 @@ class TrackballJonboh(DefaultCluster):
                 self.tl_place(web_post_tr()),
                 key_place(web_post_bl(), 0, 1),
             ]
-            ))
-        shapes.append(triangle_hulls(
-            [
-                self.tl_place(web_post_tr()),
-                key_place(web_post_tl(), 0, 2),
-                key_place(web_post_bl(), 0, 1),
-            ]
-            ))
+        ))
         shapes.append(triangle_hulls([
-                self.track_place(self.tb_post(30)),
                 self.track_place(self.tb_post(60)),
+                self.track_place(self.tb_post(30)),
                 key_place(web_post_bl(), 0, 1),
-
             ]))
         shapes.append(triangle_hulls(
             [
