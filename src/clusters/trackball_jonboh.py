@@ -309,6 +309,13 @@ class TrackballJonboh(DefaultCluster):
         shapes = list()
         shapes.append(triangle_hulls(
             [
+                self.tl_place(web_post_tr()),
+                key_place(web_post_tl(), 0, 2),
+                key_place(web_post_bl(), 0, 1),
+            ]
+            ))
+        shapes.append(triangle_hulls(
+            [
                 self.track_place(self.tb_post(30)),
                 key_place(web_post_bl(), 0, 1),
                 self.tl_place(web_post_tl()),
