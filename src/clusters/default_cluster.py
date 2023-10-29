@@ -8,7 +8,7 @@ class DefaultCluster(object):
     thumb_pos_offsets = [
         -5,
         0,
-        17
+        14
     ]
     thumb_rot_offset = [
         0,

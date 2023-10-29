@@ -6,9 +6,9 @@ import os
 class TrackballJonboh(DefaultCluster):
     key_diameter = 75
     translation_offset = [
-        -17,
+        -15.5,
         15,
-        -29
+        -32.5
     ]
     rotation_offset = [
         25,
@@ -105,32 +105,46 @@ class TrackballJonboh(DefaultCluster):
         t1 = self.thumb_1x_layout(choc_cap(1))
         return t1
 
-    def tb_post(self, angle):
-        tb_side_rotation = -10
+    def tb_post(self, y_rotation, z_rotation):
         radius = ball_diameter/2 + self.ball_wall_thickness + self.ball_gap
-        return rotate(translate(web_post(), [radius - post_adj, 0, self.tb_height]),[0,tb_side_rotation,angle])
+        return rotate(translate(web_post(), [radius - post_adj, 0, self.tb_height]),[0,y_rotation,z_rotation])
 
 
-    def tb_post_r(self):
-        return self.tb_post(0)
+    def tb_post_0(self):
+        return self.tb_post(-20, 0)
 
-    def tb_post_tr(self):
-        return self.tb_post(60)
+    def tb_post_30(self):
+        return self.tb_post(-20, 30)
 
+    def tb_post_60(self):
+        return self.tb_post(-15, 60)
 
-    def tb_post_tl(self):
-        return self.tb_post(120)
+    def tb_post_90(self):
+        return self.tb_post(-10, 90)
 
+    def tb_post_120(self):
+        return self.tb_post(-10, 120)
 
-    def tb_post_l(self):
-        return self.tb_post(180)
+    def tb_post_150(self):
+        return self.tb_post(-10, 150)
 
-    def tb_post_bl(self):
-        return self.tb_post(240)
+    def tb_post_180(self):
+        return self.tb_post(-10, 180)
 
+    def tb_post_210(self):
+        return self.tb_post(-10, 210)
 
-    def tb_post_br(self):
-        return self.tb_post(300)
+    def tb_post_240(self):
+        return self.tb_post(-20, 240)
+
+    def tb_post_270(self):
+        return self.tb_post(-20, 270)
+
+    def tb_post_300(self):
+        return self.tb_post(-20, 300)
+
+    def tb_post_330(self):
+        return self.tb_post(-20, 330)
 
     def thumb(self, side="right"):
         print('thumb()')
@@ -284,17 +298,17 @@ class TrackballJonboh(DefaultCluster):
                 lambda sh: left_key_place(sh, 1, -1, low_corner=True, side=side),
                 -1,0, web_post(),
                 self.track_place,
-                -3,0, translate(self.tb_post_tl(), wall_locate3(-4, 0)),
+                -3,0, translate(self.tb_post_120(), wall_locate3(-4, 0)),
                 ))
         shapes.append(wall_brace(
                 self.track_place,
-                -3,0, translate(self.tb_post_tl(), wall_locate3(-4, 0)),
+                -3,0, translate(self.tb_post_120(), wall_locate3(-4, 0)),
                 self.track_place,
-                -3,0, translate(self.tb_post_bl(), wall_locate3(-4, 2)),
+                -3,0, translate(self.tb_post_240(), wall_locate3(-4, 2)),
                 ))
         shapes.append(wall_brace(
                 self.track_place,
-                -3,0, translate(self.tb_post_bl(), wall_locate3(-4, 2)),
+                -3,0, translate(self.tb_post_240(), wall_locate3(-4, 2)),
                 self.bl_place, -3, -1, web_post_bl()
                 ))
         extra_walls = []
@@ -316,7 +330,7 @@ class TrackballJonboh(DefaultCluster):
             ))
         shapes.append(triangle_hulls(
             [
-                self.track_place(self.tb_post(30)),
+                self.track_place(self.tb_post_30()),
                 key_place(web_post_bl(), 0, 1),
                 self.tl_place(web_post_tl()),
                 self.tl_place(web_post_tr()),
@@ -324,51 +338,51 @@ class TrackballJonboh(DefaultCluster):
             ]
         ))
         shapes.append(triangle_hulls([
-                self.track_place(self.tb_post(60)),
-                self.track_place(self.tb_post(30)),
+                self.track_place(self.tb_post_60()),
+                self.track_place(self.tb_post_30()),
                 key_place(web_post_bl(), 0, 1),
             ]))
         shapes.append(triangle_hulls(
             [
-                self.track_place(self.tb_post(120)),
-                self.track_place(self.tb_post(90)),
+                self.track_place(self.tb_post_120()),
+                self.track_place(self.tb_post_90()),
                 left_key_place(web_post(), 1, -1, low_corner=True, side=side),
-                self.track_place(self.tb_post(90)),
+                self.track_place(self.tb_post_90()),
                 left_key_place(web_post(), 1, -1, low_corner=True, side=side),
-                self.track_place(self.tb_post(60)),
+                self.track_place(self.tb_post_60()),
                 key_place(web_post_bl(), 0, 1),
                 ]
             ))
         shapes.append(triangle_hulls(
             [
                 left_key_place(web_post(), 1, -1, low_corner=True, side=side),
-                self.track_place(self.tb_post_tl()),
-                self.track_place(translate(self.tb_post_tl(), wall_locate3(-4,0))),
-                self.track_place(self.tb_post(150)),
-                self.track_place(self.tb_post(180)),
-                self.track_place(translate(self.tb_post_tl(), wall_locate3(-4,0))),
-                self.track_place(translate(self.tb_post_bl(), wall_locate3(-4,0))),
-                self.track_place(self.tb_post(210)),
-                self.track_place(self.tb_post(240)),
-                self.track_place(translate(self.tb_post_bl(), wall_locate3(-4,0))),
-                self.track_place(self.tb_post(240)),
+                self.track_place(self.tb_post_120()),
+                self.track_place(translate(self.tb_post_120(), wall_locate3(-4,0))),
+                self.track_place(self.tb_post_150()),
+                self.track_place(self.tb_post_180()),
+                self.track_place(translate(self.tb_post_120(), wall_locate3(-4,0))),
+                self.track_place(translate(self.tb_post_240(), wall_locate3(-4,2))),
+                self.track_place(self.tb_post_210()),
+                self.track_place(translate(self.tb_post_240(), wall_locate3(-4,2))),
+                self.bl_place(web_post_bl()),
+                self.track_place(self.tb_post_240()),
                 self.bl_place(web_post_bl()),
                 self.bl_place(web_post_tl()),
-                self.track_place(self.tb_post(240)),
+                self.track_place(self.tb_post_240()),
                 self.bl_place(web_post_tl()),
-                self.track_place(self.tb_post(270)),
+                self.track_place(self.tb_post_270()),
                 self.bl_place(web_post_tl()),
-                self.track_place(self.tb_post(300)),
+                self.track_place(self.tb_post_300()),
                 self.bl_place(web_post_tr()),
-                self.track_place(self.tb_post(300)),
+                self.track_place(self.tb_post_300()),
                 self.tl_place(web_post_bl()),
-                self.track_place(self.tb_post(300)),
+                self.track_place(self.tb_post_300()),
                 self.tl_place(web_post_tl()),
-                self.track_place(self.tb_post(330)),
+                self.track_place(self.tb_post_330()),
                 self.tl_place(web_post_tl()),
-                self.track_place(self.tb_post(0)),
+                self.track_place(self.tb_post_0()),
                 self.tl_place(web_post_tl()),
-                self.track_place(self.tb_post(30)),
+                self.track_place(self.tb_post_30()),
             ]))
         shape = union(shapes)
 

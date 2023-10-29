@@ -1435,19 +1435,34 @@ def make_dactyl():
         bearings_horizon_rotation = [10,7,31]
         bearing_zrotation_offset = -15
         # sensor_rotations = ([0,0,-125],[-25,0,0],[0,2,0],[0,25,0])
-        sensor_rotations = ([0, 0, 110], [-20, 0, 0],[0, -43, 0], )
+        sensor_rotations = ([0, 0, 113], [-20, 0, 0],[0, -48, 0], )
         trackball_hole_radius = trackball_radius+ball_spacing
         holder_back_thickness = 2
         outer_shell = sphere(outer_shell_radius)
         trackball_hole = sphere(trackball_hole_radius)
-        box_cutter = translate(box(100,100,100), [0,0, 50])
+        shell_cutter = translate(box(100,100,100), [0,0, 50])
+
+        shell_cutter = hull_from_shapes( [
+            translate(box(1,1,1),[60,40,0]),
+            translate(box(1,1,1),[-40,40,0]),
+            translate(box(1,1,1),[-40,0,0]), 
+            translate(box(1,1,1),[0,-30,10]), 
+            translate(box(1,1,1),[20,-30,10]), 
+            # all the above z+20
+            translate(box(1,1,1),[60,40,20]),
+            translate(box(1,1,1),[-40,40,20]),
+            translate(box(1,1,1),[-40,0,20]), 
+            translate(box(1,1,1),[0,-30,30]), 
+            translate(box(1,1,1),[20,-30,30]), 
+                                         ])
+        # shell_cutter = translate(box(100,100,100), [0,0, 50])
         cylinder_cutter = translate(cylinder(trackball_radius+1, 100), [0,0,50])
         sensor_hole = box(12,8,100)
         sensor_plate_distance = trackball_radius+sensor_plate_extra_distance
 
         bearings = union([
             rotate(translate(rotate(rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate , 0, 0]), [0,-bearings_horizon_rotation[0],bearing_zrotation_offset+15]),
-            rotate(rotate(translate(rotate( rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate, 0, 0]), [0,-bearings_horizon_rotation[1],0]), [0, 5,bearing_zrotation_offset + 110]),
+            rotate(rotate(translate(rotate( rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate, 0, 0]), [0,-bearings_horizon_rotation[1],0]), [0, 15,bearing_zrotation_offset + 120]),
             rotate(rotate(translate(rotate( rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate, 0, 0]), [0,-bearings_horizon_rotation[2],0]), [0, 0, bearing_zrotation_offset + 250])])
 
         sensor_plate = translate(translate(box(32, 21, 1), [0,0,-0.5]), [0,0, -sensor_plate_distance])
@@ -1467,7 +1482,8 @@ def make_dactyl():
         sensor_holder = difference(sensor_holder, [bearings])
 
         # shape = union([outer_shell, trackball, box_cutter])
-        shape = difference(union([outer_shell]), [trackball_hole, box_cutter, cylinder_cutter, bearings, sensor_cutter])
+        shape = difference(union([outer_shell]), [trackball_hole, shell_cutter, cylinder_cutter, bearings, sensor_cutter])
+        # shape = union([shape, shell_cutter])
         shape = union([shape, sensor_holder])
         cutter = union([shape, sphere(trackball_radius+2), bearings])
         # shape = union([shape, sphere(trackball_radius), bearings])

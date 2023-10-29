@@ -132,9 +132,9 @@
     89.6
   ],
   "fixed_z": [
-    12.1,
-    6.3,
-    0,
+    17.1,
+    11.3,
+    5,
     5,
     10.7,
     14.5,
@@ -184,8 +184,8 @@
   "screws_offset": "INSIDE",
   "magnet_bottom": false,
   "block_bottoms": false,
-  "screw_insert_height": 7,
-  "screw_insert_bottom_radius": 2.05,
+  "screw_insert_height": 6,
+  "screw_insert_bottom_radius": 2.3,
   "screw_insert_top_radius": 1.95,
   "wire_post_height": 7,
   "wire_post_overhang": 3.5,
@@ -242,17 +242,17 @@
     ],
     [
       0,
-      0,
+      -2,
       -1.5
     ],
     [
       0,
-      -7,
+      -10,
       0
     ],
     [
       0,
-      -27,
+      -31,
       2.5
     ],
     [
@@ -289,7 +289,7 @@
     ],
     [
       -95,
-      -2,
+      2,
       0
     ],
     [
