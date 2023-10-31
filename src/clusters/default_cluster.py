@@ -174,9 +174,9 @@ class DefaultCluster(object):
                 return union(shape_list)
 
     def thumbcaps(self, side='right'):
-        t1 = self.thumb_1x_layout(choc_cap(1), cap=True)
+        t1 = self.thumb_1x_layout(ulp_cap(1), cap=True)
         if not default_1U_cluster:
-            t1.add(self.thumb_15x_layout(choc_cap(1.5), cap=True))
+            t1.add(self.thumb_15x_layout(ulp_cap(1.5), cap=True))
         return t1
 
     def thumb(self, side="right"):

@@ -50,7 +50,7 @@ class TrackballJonboh(DefaultCluster):
 
     def position_rotation(self):
         rot = [10, -15, 5]
-        pos = self.thumborigin() 
+        pos = self.thumborigin()
         pos[0] -= 1
         pos[1] -= 1
         pos[2] += 3.5
@@ -102,7 +102,7 @@ class TrackballJonboh(DefaultCluster):
         return union([])
 
     def thumbcaps(self, side='right'):
-        t1 = self.thumb_1x_layout(choc_cap(1))
+        t1 = self.thumb_1x_layout(ulp_cap(1))
         return t1
 
     def tb_post(self, y_rotation, z_rotation):
