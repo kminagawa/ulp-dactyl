@@ -7,7 +7,7 @@ import json
 import os
 import importlib
 
-from solid import difference, hull, translate
+from solid2 import difference, hull, translate
 from clusters.default_cluster import DefaultCluster
 from clusters.carbonfet import CarbonfetCluster
 from clusters.mini import MiniCluster
@@ -2326,7 +2326,7 @@ def make_dactyl():
 
     def backplate(side):
         export_file(shape=key_pcb(), fname="things/pcb")
-        import solid as s
+        import solid2 as s
         global web_thickness
         # bottom_hull = union
         print('backplate()' + side)
@@ -2360,7 +2360,7 @@ def make_dactyl():
             hull_cutout = hull_from_shapes([tbcutout])
             shape = difference(shape, [hull_cutout])
         floor = translate(box(400, 400, 40), (0, 0, -20))
-        shape = difference(shape, [floor, case_walls(side=side)])
+        shape = difference(shape, [floor, *case_walls(side=side)])
         if side == "left":
             shape = mirror(shape, 'YZ')
         return shape
@@ -2375,7 +2375,7 @@ def make_dactyl():
     # NOTE: in OpenScad use fill(){} to fill the top most projection and get the proper shape
     def baseplate(shape, wedge_angle=None, side='right'):
         shape = union([
-            case_walls(side=side),
+            *case_walls(side=side),
             *screw_insert_outers(side=side)
         ])
 
