@@ -7,7 +7,7 @@ import json
 import os
 import importlib
 
-from solid import difference, translate
+from solid import difference, hull, translate
 from clusters.default_cluster import DefaultCluster
 from clusters.carbonfet import CarbonfetCluster
 from clusters.mini import MiniCluster
@@ -192,12 +192,6 @@ def make_dactyl():
     ####################################################
 
     quickly = False
-    global quick_render
-    try:
-        if quick_render:
-            quickly = quick_render
-    except NameError:
-        quickly = False
 
     if oled_mount_type is not None and oled_mount_type != "NONE":
         for item in oled_configurations[oled_mount_type]:
@@ -329,23 +323,7 @@ def make_dactyl():
             shape_cut = box(keyswitch_width, keyswitch_height, mount_thickness * 2 + .02)
             shape_cut = translate(shape_cut, (0.0, 0.0, mount_thickness - .01))
 
-            nub_thickness = 2
             plate = difference(plate, [shape_cut])
-
-            ulp_pcb_holder = hull_from_shapes( [
-                        translate(box(keyswitch_width, 2, 0.1), [0, mount_height/2-0.5, -0.5]),
-                        translate(box(keyswitch_width, 0.1, 0.1), [0, mount_height/2, -1.5]),
-                        translate(box(keyswitch_width, 0.1, 0.1), [0, mount_height/2, 0.5])
-                        ])
-            #
-            ulp_pcb_holder_mirror = mirror(ulp_pcb_holder, 'XZ')
-            ulp_pcb_holder = union([ulp_pcb_holder, ulp_pcb_holder_mirror])
-            ulp_pcb_holder_top = translate(box(keyswitch_width, 2, 0.5), [0, mount_height/2-1, 1]),
-            ulp_pcb_holder_top_mirror = mirror(ulp_pcb_holder_top, 'XZ')
-            ulp_pcb_holder = union([ulp_pcb_holder, ulp_pcb_holder_mirror, ulp_pcb_holder_top, ulp_pcb_holder_top_mirror])
-
-
-            plate = union([plate, ulp_pcb_holder])
 
         elif plate_style == "MXLEDBIT":
             pcb_width = 19
@@ -631,18 +609,35 @@ def make_dactyl():
 
 
     def key_pcb():
-        shape = box(pcb_width, pcb_height, pcb_thickness)
-        shape = translate(shape, (0, 0, -pcb_thickness / 2))
-        hole = cylinder(pcb_hole_diameter / 2, pcb_thickness + .2)
-        hole = translate(hole, (0, 0, -(pcb_thickness + .1) / 2))
-        holes = [
-            translate(hole, (pcb_hole_pattern_width / 2, pcb_hole_pattern_height / 2, 0)),
-            translate(hole, (-pcb_hole_pattern_width / 2, pcb_hole_pattern_height / 2, 0)),
-            translate(hole, (-pcb_hole_pattern_width / 2, -pcb_hole_pattern_height / 2, 0)),
-            translate(hole, (pcb_hole_pattern_width / 2, -pcb_hole_pattern_height / 2, 0)),
-        ]
-        shape = difference(shape, holes)
-
+        if not quickly:
+            centering_hole_position = (0,3)
+            centering_hole_radius = 1.5
+            corner_radius = 2
+            shape = box(pcb_width, pcb_height, pcb_thickness)
+            solder_clearance = box(2.5, 1.5, 0.75)
+            diode_clearance = translate(box(3, 6, 2), [3.4,2.85,-pcb_thickness/2-1])
+            clearances = [
+                    translate(solder_clearance, [7.7, 0, -pcb_thickness/2-0.75/2]),
+                    translate(solder_clearance, [-7.7, 0,-pcb_thickness/2-0.75/2]),
+                    translate(rotate(solder_clearance, [0,0,90]), [0, 7,-pcb_thickness/2-0.75/2]),
+                    translate(rotate(solder_clearance, [0,0,90]), [0,-7,-pcb_thickness/2-0.75/2]),
+                    diode_clearance
+                    ]
+            centering_hole = translate(cylinder(centering_hole_radius, pcb_thickness+.2), [centering_hole_position[0], centering_hole_position[1], 0])
+            corner_hole = cylinder(corner_radius, pcb_thickness + .2)
+            holes = [
+                translate(corner_hole, (pcb_width / 2, pcb_height / 2, 0)),
+                translate(corner_hole, (-pcb_width / 2, pcb_height / 2, 0)),
+                translate(corner_hole, (-pcb_width / 2, -pcb_height / 2, 0)),
+                translate(corner_hole, (pcb_width / 2, -pcb_height / 2, 0)),
+                centering_hole,
+            ]
+            shape = difference(shape, holes)
+            shape = union([shape, *clearances])
+            shape = translate(shape, [0,0,-pcb_thickness/2])
+        else:
+            shape = box(pcb_width, pcb_height, pcb_thickness)
+            shape = translate(shape, [0,0,-pcb_thickness/2])
         return shape
 
 
@@ -793,19 +788,35 @@ def make_dactyl():
         )
 
 
-    def key_holes(side="right"):
-        debugprint('key_holes()')
-        # hole = single_plate()
+    def _key_holes(side="right"):
         holes = []
         for column in range(ncols):
             for row in range(nrows):
                 if valid_key(column, row):
                     holes.append(key_place(single_plate(side=side), column, row))
+        return holes
 
-        shape = union(holes)
 
+    def key_holes(side="right"):
+        debugprint('key_holes()')
+        shape = union(_key_holes(side))
         return shape
 
+    def key_holes_filled(side="right"):
+        return list(map(lambda hole: hull_from_shapes([hole]), _key_holes(side)))
+
+    def pcbs():
+        pcbs = None
+        single_pcb = translate(key_pcb(), [0,0,0.5])
+        for column in range(ncols):
+            for row in range(nrows):
+                if valid_key(column, row):
+                    if pcbs is None:
+                        pcbs = key_place(single_pcb, column, row)
+                    else:
+                        pcbs = add([pcbs, key_place(single_pcb, column, row)])
+
+        return pcbs
 
     def caps():
         caps = None
@@ -862,7 +873,7 @@ def make_dactyl():
         # return torow
 
 
-    def connectors():
+    def _connectors():
         debugprint('connectors()')
         hulls = []
         for column in range(ncols - 1):
@@ -878,7 +889,7 @@ def make_dactyl():
                 places.append(key_place(web_post_tr(), column, row))
                 places.append(key_place(web_post_bl(), column + 1, next_row))
                 places.append(key_place(web_post_br(), column, row))
-                hulls.append(triangle_hulls(places))
+                hulls += _triangle_hulls(places)
 
         for column in range(ncols):
             torow = get_torow(column)
@@ -890,7 +901,7 @@ def make_dactyl():
                 places.append(key_place(web_post_br(), column, row))
                 places.append(key_place(web_post_tl(), column, row + 1))
                 places.append(key_place(web_post_tr(), column, row + 1))
-                hulls.append(triangle_hulls(places))
+                hulls += _triangle_hulls(places)
 
         for column in range(ncols - 1):
             torow = get_torow(column)
@@ -903,9 +914,13 @@ def make_dactyl():
                 places.append(key_place(web_post_tr(), column, row + 1))
                 places.append(key_place(web_post_bl(), column + 1, next_row))
                 places.append(key_place(web_post_tl(), column + 1, next_row + 1))
-                hulls.append(triangle_hulls(places))
+                hulls += _triangle_hulls(places)
 
-        return union(hulls)
+        return hulls
+
+    def connectors():
+        debugprint('connectors()')
+        return union(_connectors())
 
 
     ############
@@ -2309,6 +2324,47 @@ def make_dactyl():
 
         return shape, walls_vertical
 
+    def backplate(side):
+        export_file(shape=key_pcb(), fname="things/pcb")
+        import solid as s
+        global web_thickness
+        # bottom_hull = union
+        print('backplate()' + side)
+        key_columns = list(map(lambda shape: bottom_hull([shape]), key_holes_filled(side)))
+        # manually prevent bottom hulls from overlapping
+        key_columns[3] = difference(key_columns[3], [translate(key_columns[6], [0,0,20])])
+        key_columns[4] = difference(key_columns[4], [translate(key_columns[7], [0,0,20])])
+        key_columns[5] = difference(key_columns[5], [translate(key_columns[8], [0,0,20])])
+        key_columns[8] = difference(key_columns[8], [translate(key_columns[11], [0,0,20])])
+        key_columns = union(key_columns)
+        connector_columns = union(map(lambda shape: bottom_hull([shape]), _connectors()))
+        connector_columns = difference(connector_columns, [translate(key_columns, [0,0,20])])
+        thumb_shapes = (cluster(side)._thumb_1x_layout(hull_from_shapes([single_plate(side=side)]))
+                    + cluster(side)._thumb_connectors(side=side))
+        thumb_block = union(map(lambda shape: bottom_hull([shape]), thumb_shapes))
+        _web_thickness = web_thickness
+        web_thickness += 1
+        main_block = difference(union([key_columns, connector_columns]), [
+            pcbs(),
+            key_holes_filled(),
+            connectors(),
+            ])
+        thumb_block = difference(thumb_block, [
+            cluster(side).thumb_connectors(), cluster(side).pcbs(side=side),
+            cluster(side).thumb_1x_layout(hull_from_shapes([single_plate(side=side)]))
+            ] )
+        web_thickness = _web_thickness
+        shape = union([thumb_block,main_block])
+        if cluster(side).is_tb:
+            _, _, tbcutout, _, _ = generate_trackball_in_cluster(cluster(side))
+            hull_cutout = hull_from_shapes([tbcutout])
+            shape = difference(shape, [hull_cutout])
+        floor = translate(box(400, 400, 40), (0, 0, -20))
+        shape = difference(shape, [floor, case_walls(side=side)])
+        if side == "left":
+            shape = mirror(shape, 'YZ')
+        return shape
+
     def wrist_rest(base, plate, side="right"):
         rest = import_file(path.join(parts_path, "dactyl_wrist_rest_v3_" + side))
         rest = rotate(rest, (0, 0, -60))
@@ -2316,115 +2372,30 @@ def make_dactyl():
         rest = union([rest, translate(base, (0, 0, 5)), plate])
         return rest
 
-    # NEEDS TO BE SPECIAL FOR CADQUERY
+    # NOTE: in OpenScad use fill(){} to fill the top most projection and get the proper shape
     def baseplate(shape, wedge_angle=None, side='right'):
-        global logo_file
-        if ENGINE == 'cadquery':
-            # shape = mod_r
-            shape = union([shape, *screw_insert_outers(side=side)])
-            # tool = translate(screw_insert_screw_holes(side=side), [0, 0, -10])
-            if magnet_bottom:
-                tool = screw_insert_all_shapes(screw_hole_diameter / 2., screw_hole_diameter / 2., 2.1, side=side)
-                for item in tool:
-                    item = translate(item, [0, 0, 1.2])
-                    shape = difference(shape, [item])
-            else:
-                tool = screw_insert_all_shapes(screw_hole_diameter / 2., screw_hole_diameter / 2., 350, side=side)
-                for item in tool:
-                    item = translate(item, [0, 0, -10])
-                    shape = difference(shape, [item])
+        shape = union([
+            case_walls(side=side),
+            *screw_insert_outers(side=side)
+        ])
 
-            shape = translate(shape, (0, 0, -0.0001))
+        tool = union(screw_insert_screw_holes(side=side))
+        base = box(1000, 1000, .01)
+        # shape = shape - tool
+        shape = intersect(shape, base)
 
-            square = cq.Workplane('XY').rect(1000, 1000)
-            for wire in square.wires().objects:
-                plane = cq.Workplane('XY').add(cq.Face.makeFromWires(wire))
-            shape = intersect(shape, plane)
-
-            outside = shape.vertices(cq.DirectionMinMaxSelector(cq.Vector(1, 0, 0), True)).objects[0]
-            sizes = []
-            max_val = 0
-            inner_index = 0
-            base_wires = shape.wires().objects
-            for i_wire, wire in enumerate(base_wires):
-                is_outside = False
-                for vert in wire.Vertices():
-                    if vert.toTuple() == outside.toTuple():
-                        outer_wire = wire
-                        outer_index = i_wire
-                        is_outside = True
-                        sizes.append(0)
-                if not is_outside:
-                    sizes.append(len(wire.Vertices()))
-                if sizes[-1] > max_val:
-                    inner_index = i_wire
-                    max_val = sizes[-1]
-            debugprint(sizes)
-            inner_wire = base_wires[inner_index]
-
-            # inner_plate = cq.Workplane('XY').add(cq.Face.makeFromWires(inner_wire))
-            if wedge_angle is not None:
-                cq.Workplane('XY').add(cq.Solid.revolve(outerWire, innerWires, angleDegrees, axisStart, axisEnd))
-            else:
-                inner_shape = cq.Workplane('XY').add(
-                    cq.Solid.extrudeLinear(inner_wire, [], cq.Vector(0, 0, base_thickness)))
-                inner_shape = translate(inner_shape, (0, 0, -base_rim_thickness))
-                if block_bottoms:
-                    inner_shape = blockerize(inner_shape)
-                if logo_file not in ["", None]:
-                    logo = import_file(logo_file)
-                    if side == "left":
-                        logo = mirror(logo, "YZ")
-
-                    logo = translate(logo, logo_offsets)
-
-                    inner_shape = union([inner_shape, logo])
-
-                holes = []
-                for i in range(len(base_wires)):
-                    if i not in [inner_index, outer_index]:
-                        holes.append(base_wires[i])
-                cutout = [*holes, inner_wire]
-
-                shape = cq.Workplane('XY').add(
-                    cq.Solid.extrudeLinear(outer_wire, cutout, cq.Vector(0, 0, base_rim_thickness)))
-                hole_shapes = []
-                for hole in holes:
-                    loc = hole.Center()
-                    hole_shapes.append(
-                        translate(
-                            cylinder(screw_cbore_diameter / 2.0, screw_cbore_depth),
-                            (loc.x, loc.y, 0)
-                            # (loc.x, loc.y, screw_cbore_depth/2)
-                        )
-                    )
-                shape = difference(shape, hole_shapes)
-                shape = translate(shape, (0, 0, -base_rim_thickness))
-                shape = union([shape, inner_shape])
-                if magnet_bottom:
-                    shape = difference(shape, [translate(magnet, (0, 0, 0.05 - (screw_insert_height / 2))) for magnet in list(tool)])
-
-            return shape
-        else:
-
-            shape = union([
-                case_walls(side=side),
-                *screw_insert_outers(side=side)
-            ])
-
-            tool = translate(union(screw_insert_screw_holes(side=side)), [0, 0, -10])
-            base = box(1000, 1000, .01)
-            shape = shape - tool
-            shape = intersect(shape, base)
-
-            shape = translate(shape, [0, 0, -0.001])
-
-            return sl.projection(cut=True)(shape)
+        shape = translate(shape, [0, 0, -0.001])
+        project = translate(sl.linear_extrude(height=base_thickness)( sl.projection(cut=True)(shape)),
+                            [0,0, -base_thickness])
+        base = union([project, backplate(side=side)])
+        return difference(base, [tool])
 
 
     def run():
         mod_r, walls_r = model_side(side="right")
         export_file(shape=mod_r, fname=path.join(save_path, config_name + r"_right"))
+        pcb_backplate = backplate(side="right")
+        export_file(shape=pcb_backplate, fname=path.join(save_path, config_name + r"backplate_right"))
 
         if right_side_only:
             print(">>>>>  RIGHT SIDE ONLY: Only rendering a the right side.")
@@ -2444,6 +2415,8 @@ def make_dactyl():
 
         mod_l, walls_l = model_side(side="left")
         export_file(shape=mod_l, fname=path.join(save_path, config_name + r"_left"))
+        pcb_backplate = backplate(side="left")
+        export_file(shape=pcb_backplate, fname=path.join(save_path, config_name + r"backplate_left"))
         first_column_test = difference(mod_l, [
             translate(
                 rotate(box(150, 300, 200), [0, -15, 5]), [40,-25,40])

@@ -70,32 +70,15 @@ class TrackballJonboh(DefaultCluster):
         shape = translate(shape, pos)
         return shape
 
-    def thumb_1x_layout(self, shape, cap=False):
+    def _thumb_1x_layout(self, shape, cap=False):
         debugprint('thumb_1x_layout()')
-        if cap:
-            shape_list = [
-                self.tl_place(rotate(shape, [0, 0, self.thumb_plate_mr_rotation])),
-                self.mr_place(rotate(shape, [0, 0, self.thumb_plate_mr_rotation])),
-                self.br_place(rotate(shape, [0, 0, self.thumb_plate_br_rotation])),
-                self.bl_place(rotate(shape, [0, 0, self.thumb_plate_bl_rotation])),
-            ]
-
-            if default_1U_cluster:
-                shape_list.append(self.tr_place(rotate(rotate(shape, (0, 0, 90)), [0, 0, self.thumb_plate_tr_rotation])))
-                shape_list.append(self.tr_place(rotate(rotate(shape, (0, 0, 90)), [0, 0, self.thumb_plate_tr_rotation])))
-                shape_list.append(self.tl_place(rotate(shape, [0, 0, self.thumb_plate_tl_rotation])))
-            shapes = add(shape_list)
-
-        else:
-            shape_list = [
-                self.tl_place(rotate(shape, [0, 0, self.thumb_plate_mr_rotation])),
-                self.mr_place(rotate(shape, [0, 0, self.thumb_plate_mr_rotation])),
-                self.br_place(rotate(shape, [0, 0, self.thumb_plate_br_rotation])),
-                self.bl_place(rotate(shape, [0, 0, self.thumb_plate_bl_rotation])),
-            ]
-            if default_1U_cluster:
-                shape_list.append(self.tr_place(rotate(rotate(shape, (0, 0, 90)), [0, 0, self.thumb_plate_tr_rotation])))
-            shapes = union(shape_list)
+        shapes = [
+            self.mr_place(rotate(shape, [0, 0, self.thumb_plate_mr_rotation])),
+            self.br_place(rotate(shape, [0, 0, self.thumb_plate_br_rotation])),
+            self.bl_place(rotate(shape, [0, 0, self.thumb_plate_bl_rotation])),
+            self.tr_place(rotate(shape, [0, 0, self.thumb_plate_tr_rotation])),
+            self.tl_place(rotate(shape, [0, 0, self.thumb_plate_tl_rotation]))
+        ]
         return shapes
 
     def thumb_fx_layout(self, shape):
@@ -146,19 +129,9 @@ class TrackballJonboh(DefaultCluster):
     def tb_post_330(self):
         return self.tb_post(-20, 330)
 
-    def thumb(self, side="right"):
-        print('thumb()')
-        shape = self.thumb_1x_layout(rotate(single_plate(side=side), (0, 0, -90)))
-        shape = union([shape, self.thumb_15x_layout(rotate(single_plate(side=side), (0, 0, -90)))])
-        # shape = union([shape, self.thumb_15x_layout(double_plate(), plate=False)])
-
-        return shape
-
-
-    def thumb_connectors(self, side="right"):
+    def _thumb_connectors(self, side="right"):
         hulls = []
-        hulls.append(
-            triangle_hulls(
+        hulls += _triangle_hulls(
                 [
                  self.tr_place(web_post_br()),
                  self.tr_place(web_post_bl()),
@@ -167,9 +140,7 @@ class TrackballJonboh(DefaultCluster):
                  self.mr_place(web_post_tr()),
                 ]
             )
-        )
-        hulls.append(
-            triangle_hulls(
+        hulls += _triangle_hulls(
                 [
                     self.bl_place(web_post_tr()),
                     self.ml_place(web_post_br()),
@@ -179,36 +150,28 @@ class TrackballJonboh(DefaultCluster):
                     self.tl_place(web_post_br())
                 ]
                 )
-                )
-        hulls.append(
-            triangle_hulls(
+        hulls += _triangle_hulls(
                 [
                     self.mr_place(web_post_bl()),
                     self.mr_place(web_post_tl()),
                     self.bl_place(web_post_tr()),
                 ]
             )
-        )
-        hulls.append(
-            triangle_hulls(
+        hulls += _triangle_hulls(
                 [
                     self.tr_place(web_post_tl()),
                     self.tl_place(web_post_br()),
                     self.mr_place(web_post_tr()),
                 ]
             )
-        )
-        hulls.append(
-            triangle_hulls(
+        hulls += _triangle_hulls(
                 [
                     self.tr_place(web_post_tr()),
                     self.tr_place(web_post_tl()),
                     self.tl_place(web_post_br()),
                 ]
             )
-        )
-        hulls.append(
-            triangle_hulls(
+        hulls += _triangle_hulls(
                 [
                     self.tr_place(web_post_tr()),
                     cluster_key_place(translate(web_post_bl(), wall_locate1(-1, -2)), 0, cornerrow),
@@ -216,9 +179,7 @@ class TrackballJonboh(DefaultCluster):
                     self.tl_place(web_post_tr()),
                 ]
             )
-        )
-        hulls.append(
-            triangle_hulls(
+        hulls += _triangle_hulls(
                 [
                     self.tl_place(web_post_tr()),
                     cluster_key_place(translate(web_post_bl(), wall_locate1(-1, -2)), 0, cornerrow),
@@ -226,9 +187,8 @@ class TrackballJonboh(DefaultCluster):
                     self.tl_place(web_post_tr()),
                     key_place(web_post_tl(), 0, 2),
                 ]
-            ))
-        hulls.append(
-            triangle_hulls(
+            )
+        hulls += _triangle_hulls(
                 [
                     cluster_key_place(translate(web_post_bl(), wall_locate1(-1, -2)), 0, cornerrow),
                     cluster_key_place(web_post_bl(), 0, cornerrow),
@@ -239,9 +199,7 @@ class TrackballJonboh(DefaultCluster):
                     cluster_key_place(web_post_br(), 1, cornerrow),
                 ]
             )
-        )
-        hulls.append(
-            triangle_hulls(
+        hulls += _triangle_hulls(
                 [
                     cluster_key_place(web_post_br(), 1, cornerrow),
                     self.br_place(web_post_tl()),
@@ -251,9 +209,7 @@ class TrackballJonboh(DefaultCluster):
                     self.br_place(web_post_bl()),
                 ]
             )
-        )
-        hulls.append(
-            triangle_hulls(
+        hulls += _triangle_hulls(
                 [
                     self.br_place(web_post_tl()),
                     cluster_key_place(web_post_br(), 1, cornerrow),
@@ -265,9 +221,7 @@ class TrackballJonboh(DefaultCluster):
                     self.br_place(web_post_tr()),
                 ]
             )
-        )
-        hulls.append(
-            triangle_hulls(
+        hulls += _triangle_hulls(
                 [
                     self.br_place(web_post_tr()),
                     cluster_key_place(web_post_bl(), 3, cornerrow),
@@ -277,8 +231,21 @@ class TrackballJonboh(DefaultCluster):
                     self.br_place(web_post_br()),
                 ]
             )
-        )
-        return union(hulls)
+        hulls += _triangle_hulls(
+                [
+                    self.mr_place(web_post_bl()),
+                    self.bl_place(web_post_tr()),
+                    self.bl_place(web_post_br()),
+                ]
+            )
+        hulls += _triangle_hulls(
+                [
+                    self.mr_place(web_post_tr()),
+                    self.tr_place(web_post_bl()),
+                    self.tr_place(web_post_tl()),
+                ]
+            )
+        return hulls
 
     def walls(self, side="right"):
         print('thumb_walls()')

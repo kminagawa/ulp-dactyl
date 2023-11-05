@@ -94,13 +94,15 @@ def tess_hull(shapes, sl_tol=.5, sl_angTol=1):
     return sl.hull()(*shapes)
 
 
-def triangle_hulls(shapes):
+def _triangle_hulls(shapes):
     debugprint('triangle_hulls()')
     hulls = []
     for i in range(len(shapes) - 2):
         hulls.append(hull_from_shapes(shapes[i: (i + 3)]))
+    return hulls
 
-    return union(hulls)
+def triangle_hulls(shapes):
+    return union(_triangle_hulls(shapes))
 
 
 
