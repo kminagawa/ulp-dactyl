@@ -25,6 +25,7 @@ from json_loader import load_json
 
 from os import path
 import subprocess
+import fill_extension
 
 
 def get_git_branch():
@@ -609,22 +610,31 @@ def make_dactyl():
 
 
     def key_pcb():
+        extra_tolerance_thickness = 0.1
+        pcb_thickness_ = pcb_thickness + extra_tolerance_thickness
         if not quickly:
             centering_hole_position = (0,3)
             centering_hole_radius = 1.5
             corner_radius = 2
-            shape = box(pcb_width, pcb_height, pcb_thickness)
-            solder_clearance = box(2.5, 1.5, 0.75)
-            diode_clearance = translate(box(3, 6, 2), [3.4,2.85,-pcb_thickness/2-1])
+            wiring_clearance_width = 1
+            shape = box(pcb_width, pcb_height, pcb_thickness_)
+            solder_clearance = box(3.5, 1.5, 0.75)
+            diode_clearance = translate(box(3, 6, 2), [3.4,2.85,-pcb_thickness_/2-1])
+            wiring_clearance_vert= box(pcb_width+2*wiring_clearance_width, wiring_clearance_width, 2*pcb_thickness)
+            wiring_clearance_horiz = box(wiring_clearance_width, pcb_height+2*wiring_clearance_width, 2*pcb_thickness)
             clearances = [
-                    translate(solder_clearance, [7.7, 0, -pcb_thickness/2-0.75/2]),
-                    translate(solder_clearance, [-7.7, 0,-pcb_thickness/2-0.75/2]),
-                    translate(rotate(solder_clearance, [0,0,90]), [0, 7,-pcb_thickness/2-0.75/2]),
-                    translate(rotate(solder_clearance, [0,0,90]), [0,-7,-pcb_thickness/2-0.75/2]),
-                    diode_clearance
+                    translate(solder_clearance, [7.7, 0, -pcb_thickness_/2-0.75/2]),
+                    translate(solder_clearance, [-7.7, 0,-pcb_thickness_/2-0.75/2]),
+                    translate(rotate(solder_clearance, [0,0,90]), [0, 7,-pcb_thickness_/2-0.75/2]),
+                    translate(rotate(solder_clearance, [0,0,90]), [0,-7,-pcb_thickness_/2-0.75/2]),
+                    translate(wiring_clearance_vert, [0, wiring_clearance_width/2+pcb_height/2, -pcb_thickness/2]),
+                    translate(wiring_clearance_vert, [0, -(wiring_clearance_width/2+pcb_height/2), -pcb_thickness/2]),
+                    translate(wiring_clearance_horiz, [wiring_clearance_width/2+pcb_width/2, 0, -pcb_thickness/2]),
+                    translate(wiring_clearance_horiz, [-(wiring_clearance_width/2+pcb_width/2), 0, -pcb_thickness/2]),
+                    diode_clearance,
                     ]
-            centering_hole = translate(cylinder(centering_hole_radius, pcb_thickness+.2), [centering_hole_position[0], centering_hole_position[1], 0])
-            corner_hole = cylinder(corner_radius, pcb_thickness + .2)
+            centering_hole = translate(cylinder(centering_hole_radius, pcb_thickness_+.2), [centering_hole_position[0], centering_hole_position[1], 0])
+            corner_hole = cylinder(corner_radius, pcb_thickness_ + .2)
             holes = [
                 translate(corner_hole, (pcb_width / 2, pcb_height / 2, 0)),
                 translate(corner_hole, (-pcb_width / 2, pcb_height / 2, 0)),
@@ -634,10 +644,10 @@ def make_dactyl():
             ]
             shape = difference(shape, holes)
             shape = union([shape, *clearances])
-            shape = translate(shape, [0,0,-pcb_thickness/2])
+            shape = translate(shape, [0,0,-pcb_thickness_/2])
         else:
-            shape = box(pcb_width, pcb_height, pcb_thickness)
-            shape = translate(shape, [0,0,-pcb_thickness/2])
+            shape = box(pcb_width, pcb_height, pcb_thickness_)
+            shape = translate(shape, [0,0,-pcb_thickness_/2])
         return shape
 
 
@@ -807,7 +817,8 @@ def make_dactyl():
 
     def pcbs():
         pcbs = None
-        single_pcb = translate(key_pcb(), [0,0,0.5])
+        single_pcb = translate(key_pcb(), [0,0,0.25])
+        # single_pcb = key_pcb()
         for column in range(ncols):
             for row in range(nrows):
                 if valid_key(column, row):
@@ -2326,8 +2337,6 @@ def make_dactyl():
 
     def backplate(side):
         export_file(shape=key_pcb(), fname="things/pcb")
-        import solid2 as s
-        global web_thickness
         # bottom_hull = union
         print('backplate()' + side)
         key_columns = list(map(lambda shape: bottom_hull([shape]), key_holes_filled(side)))
@@ -2339,22 +2348,23 @@ def make_dactyl():
         key_columns = union(key_columns)
         connector_columns = union(map(lambda shape: bottom_hull([shape]), _connectors()))
         connector_columns = difference(connector_columns, [translate(key_columns, [0,0,20])])
+        main_block =union([key_columns, connector_columns])
         thumb_shapes = (cluster(side)._thumb_1x_layout(hull_from_shapes([single_plate(side=side)]))
                     + cluster(side)._thumb_connectors(side=side))
         thumb_block = union(map(lambda shape: bottom_hull([shape]), thumb_shapes))
+
+        global web_thickness
         _web_thickness = web_thickness
         web_thickness += 1
-        main_block = difference(union([key_columns, connector_columns]), [
+        shape = union([main_block, thumb_block])
+        shape = difference(shape, [
             pcbs(),
             key_holes_filled(),
             connectors(),
-            ])
-        thumb_block = difference(thumb_block, [
             cluster(side).thumb_connectors(), cluster(side).pcbs(side=side),
-            cluster(side).thumb_1x_layout(hull_from_shapes([single_plate(side=side)]))
+            cluster(side).thumb_1x_layout(hull_from_shapes([single_plate(side=side)])),
             ] )
         web_thickness = _web_thickness
-        shape = union([thumb_block,main_block])
         if cluster(side).is_tb:
             _, _, tbcutout, _, _ = generate_trackball_in_cluster(cluster(side))
             hull_cutout = hull_from_shapes([tbcutout])
@@ -2372,7 +2382,6 @@ def make_dactyl():
         rest = union([rest, translate(base, (0, 0, 5)), plate])
         return rest
 
-    # NOTE: in OpenScad use fill(){} to fill the top most projection and get the proper shape
     def baseplate(shape, wedge_angle=None, side='right'):
         shape = union([
             *case_walls(side=side),
@@ -2385,17 +2394,17 @@ def make_dactyl():
         shape = intersect(shape, base)
 
         shape = translate(shape, [0, 0, -0.001])
-        project = translate(sl.linear_extrude(height=base_thickness)( sl.projection(cut=True)(shape)),
+        base = translate(sl.linear_extrude(height=base_thickness)( sl.projection(cut=True)(shape).fill()),
                             [0,0, -base_thickness])
-        base = union([project, backplate(side=side)])
+        base = union([base, backplate(side=side)])
         return difference(base, [tool])
 
 
     def run():
         mod_r, walls_r = model_side(side="right")
         export_file(shape=mod_r, fname=path.join(save_path, config_name + r"_right"))
-        pcb_backplate = backplate(side="right")
-        export_file(shape=pcb_backplate, fname=path.join(save_path, config_name + r"backplate_right"))
+        # pcb_backplate = backplate(side="right")
+        # export_file(shape=pcb_backplate, fname=path.join(save_path, config_name + r"backplate_right"))
 
         if right_side_only:
             print(">>>>>  RIGHT SIDE ONLY: Only rendering a the right side.")
@@ -2415,8 +2424,8 @@ def make_dactyl():
 
         mod_l, walls_l = model_side(side="left")
         export_file(shape=mod_l, fname=path.join(save_path, config_name + r"_left"))
-        pcb_backplate = backplate(side="left")
-        export_file(shape=pcb_backplate, fname=path.join(save_path, config_name + r"backplate_left"))
+        # pcb_backplate = backplate(side="left")
+        # export_file(shape=pcb_backplate, fname=path.join(save_path, config_name + r"backplate_left"))
         first_column_test = difference(mod_l, [
             translate(
                 rotate(box(150, 300, 200), [0, -15, 5]), [40,-25,40])
