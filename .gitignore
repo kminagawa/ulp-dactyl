@@ -26,3 +26,5 @@ config/
 **/*.iml
 
 /src/.ipynb_checkpoints/
+
+.direnv/
