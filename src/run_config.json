@@ -6,13 +6,13 @@
   "save_name": "",
   "config_name": "jonboh",
   "logo_file": null,
-  "show_caps": false,
-  "show_pcbs": false,
+  "show_caps": true,
+  "show_pcbs": true,
   "show_external_holder": false,
   "resin": false,
   "nrows": 3,
   "ncols": 5,
-  "alpha": 0.69,
+  "alpha": 0.49,
   "beta": 0.08726638888888888,
   "centercol": 3,
   "centerrow_offset": 2,
@@ -100,7 +100,7 @@
   "first_1_5U_row": 0,
   "last_1_5U_row": 5,
   "extra_width": 0.5,
-  "extra_height": -6.25,
+  "extra_height": -6.75,
   "wall_z_offset": 5,
   "wall_x_offset": 1,
   "wall_y_offset": 5,
@@ -132,7 +132,7 @@
     89.6
   ],
   "fixed_z": [
-    17.1,
+    14.1,
     11.3,
     5,
     5,
@@ -142,8 +142,8 @@
   ],
   "fixed_tenting": 0.0,
   "plate_style": "ULP",
-  "hole_keyswitch_height": 15.5,
-  "hole_keyswitch_width": 15.5,
+  "hole_keyswitch_height": 17,
+  "hole_keyswitch_width": 17,
   "nub_keyswitch_height": 14.4,
   "nub_keyswitch_width": 14.4,
   "undercut_keyswitch_height": 14.25,
@@ -153,7 +153,7 @@
   "sa_length": 18.5,
   "sa_double_length": 37.5,
   "plate_thickness": 1.25,
-  "plate_rim_width": 1,
+  "plate_rim_width": 1.5,
   "plate_rim_height": 1,
   "clip_thickness": 1.4,
   "clip_undercut": 1.0,
@@ -229,7 +229,7 @@
   "pcb_hole_diameter": 2,
   "column_offsets": [
     [
-      0,
+      1,
       -7,
       1.5
     ],
@@ -286,7 +286,7 @@
       0
     ],
     [
-      -95,
+      -82,
       2,
       0
     ],
@@ -301,13 +301,18 @@
       0
     ],
     [
-      -5,
-      -35,
+      -20,
+      -10,
       0
     ],
     [
-      0,
-      27,
+      -4,
+      50,
+      0
+    ],
+    [
+      -68,
+      41,
       0
     ]
   ],

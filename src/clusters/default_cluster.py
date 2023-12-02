@@ -74,15 +74,15 @@ class DefaultCluster(object):
 
     def tl_place(self, shape):
         debugprint('tl_place()')
-        shape = rotate(shape, [27.5, -18, 18])
-        shape = translate(shape, [-42.5, -3, 15])
+        shape = rotate(shape, [27.5, -18, 12])
+        shape = translate(shape, [-32.5, -3, 15])
         shape = self.thumb_place(shape)
         return shape
 
     def tr_place(self, shape):
         debugprint('tr_place()')
-        shape = rotate(shape, [10, -15, 10])
-        shape = translate(shape, [-15, -17, 10])
+        shape = rotate(shape, [10, -20, 10])
+        shape = translate(shape, [-25, -20, 10])
         shape = self.thumb_place(shape)
         return shape
 
@@ -90,8 +90,8 @@ class DefaultCluster(object):
         debugprint('mr_place()')
         # shape = rotate(shape, [-6, -34, 48])
         # shape = translate(shape, [-29, -40, -13])
-        shape = rotate(shape, [7.5, -18, 10])
-        shape = translate(shape, [-33.5, -22.5, 5.5])
+        shape = rotate(shape, [7.5, -18, 15])
+        shape = translate(shape, [-43.5, -25, 2])
         shape = self.thumb_place(shape)
         return shape
 
@@ -99,8 +99,8 @@ class DefaultCluster(object):
         debugprint('ml_place()')
         # shape = rotate(shape, [6, -34, 10])
         # shape = translate(shape, [-51, -25, -12])
-        shape = rotate(shape, [30.5, -22, 30])
-        shape = translate(shape, [-63, -9, 9])
+        shape = rotate(shape, [30.5, -20, 18])
+        shape = translate(shape, [-52, -8, 9])
         shape = self.thumb_place(shape)
         return shape
 
@@ -108,8 +108,8 @@ class DefaultCluster(object):
         debugprint('br_place()')
         # shape = rotate(shape, [6, -20, 10])
         # shape = translate(shape, [-32, -44, -9])
-        shape = rotate(shape, [10, 60, 0])
-        shape = translate(shape, [7,-25,-25])
+        shape = rotate(shape, [30, 40, -5])
+        shape = translate(shape, [18,-32,-54])
         shape = self.thumb_place(shape)
         return shape
 
@@ -117,8 +117,8 @@ class DefaultCluster(object):
         debugprint('bl_place()')
         # shape = rotate(shape, [-4, -35, 52])
         # shape = translate(shape, [-56.3, -43.3, -23.5])
-        shape = rotate(shape, [6, -20, 20])
-        shape = translate(shape, [-53, -28, 0])
+        shape = rotate(shape, [13, 35, 22])
+        shape = translate(shape, [-62, -33, 5])
         shape = self.thumb_place(shape)
         return shape
 
@@ -216,23 +216,21 @@ class DefaultCluster(object):
                     self.mr_place(web_post_tl()),
                     self.tl_place(web_post_bl()),
                     self.mr_place(web_post_tr()),
-                    self.tl_place(web_post_br())
-                ]
-                )
-        hulls += _triangle_hulls(
-                [
-                    self.mr_place(web_post_bl()),
-                    self.mr_place(web_post_tl()),
-                    self.bl_place(web_post_tr()),
-                    # self.mr_place(web_post_tr()),
-                    # self.bl_place(web_post_br())
+                    self.tr_place(web_post_tl()),
                 ]
             )
         hulls += _triangle_hulls(
                 [
                     self.tr_place(web_post_tl()),
                     self.tl_place(web_post_br()),
-                    self.mr_place(web_post_tr()),
+                    self.tl_place(web_post_bl()),
+                ]
+            )
+        hulls += _triangle_hulls(
+                [
+                    self.mr_place(web_post_bl()),
+                    self.mr_place(web_post_tl()),
+                    self.bl_place(web_post_tr()),
                 ]
             )
         hulls += _triangle_hulls(
@@ -324,8 +322,8 @@ class DefaultCluster(object):
         shapes.append(wall_brace(self.bl_place, -3, -1, web_post_br(), self.bl_place, -3, -1, web_post_bl()))
         shapes.append(wall_brace(self.bl_place, -3, -1, web_post_bl(), self.bl_place, -3, 0, web_post_bl()))
         shapes.append(wall_brace(self.bl_place, -3, 0, web_post_bl(), self.bl_place, -3, 0, web_post_tl()))
-        shapes.append(wall_brace(self.bl_place, -3, 0, web_post_tl(), self.ml_place, -3, 0, web_post_bl()))
-        shapes.append(wall_brace(self.ml_place, -3, 0, web_post_bl(), self.ml_place, -3, 0, web_post_tl()))
+        # shapes.append(wall_brace(self.bl_place, -3, 0, web_post_tl(), self.ml_place, -3, 0, web_post_bl()))
+        # shapes.append(wall_brace(self.ml_place, -3, 0, web_post_bl(), self.ml_place, -3, 0, web_post_tl()))
 
         shapes.append( wall_brace(self.br_place, 0, -1, web_post_br(), (lambda sh: cluster_key_place(sh, 4, lastrow)), 0,
                                   -1, web_post_bl()))
@@ -335,7 +333,7 @@ class DefaultCluster(object):
                 # lambda sh: left_key_place(translate(sh, wall_locate3(-1, 0)), 1, -1, low_corner=True, side=side),
                 lambda sh: left_key_place(sh, 1, -1, low_corner=True, side=side),
                 -1,0, web_post(),
-                self.ml_place,
+                self.bl_place,
                 -3,0, web_post_tl(),
                 ))
         extra_walls = []
@@ -380,6 +378,14 @@ class DefaultCluster(object):
                 self.ml_place(web_post_tr()),
                 left_key_place(web_post(), 1, -1, low_corner=True, side=side),
                 key_place(web_post_bl(), 0, 1),
+                ]
+            ))
+        shapes.append(triangle_hulls(
+            [
+                left_key_place(web_post(), 1, -1, low_corner=True, side=side),
+                self.ml_place(web_post_tl()),
+                self.bl_place(web_post_tl()),
+                self.bl_place(web_post_tr()),
                 ]
             ))
         shape = union(shapes)

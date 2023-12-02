@@ -7,6 +7,7 @@ import json
 import os
 import importlib
 
+import solid2 as s
 from solid2 import difference, hull, translate
 from clusters.default_cluster import DefaultCluster
 from clusters.carbonfet import CarbonfetCluster
@@ -26,6 +27,7 @@ from json_loader import load_json
 from os import path
 import subprocess
 import fill_extension
+import wrist
 
 
 def get_git_branch():
@@ -192,7 +194,7 @@ def make_dactyl():
     # END HELPER FUNCTIONS
     ####################################################
 
-    quickly = False
+    quickly = True
 
     if oled_mount_type is not None and oled_mount_type != "NONE":
         for item in oled_configurations[oled_mount_type]:
@@ -236,7 +238,7 @@ def make_dactyl():
         symmetry = "asymmetric"
 
     mount_width = keyswitch_width + 2 * plate_rim_width
-    mount_height = keyswitch_height + 2 * plate_rim_width
+    mount_height = keyswitch_height + 2 * plate_rim_height
     mount_thickness = plate_thickness
 
     if default_1U_cluster and thumb_style == 'DEFAULT':
@@ -610,6 +612,7 @@ def make_dactyl():
 
 
     def key_pcb():
+        extra_tolerance_dimmensional_accuracy = 0.375
         extra_tolerance_thickness = 0.1
         pcb_thickness_ = pcb_thickness + extra_tolerance_thickness
         if not quickly:
@@ -633,8 +636,8 @@ def make_dactyl():
                     translate(wiring_clearance_horiz, [-(wiring_clearance_width/2+pcb_width/2), 0, -pcb_thickness/2]),
                     diode_clearance,
                     ]
-            centering_hole = translate(cylinder(centering_hole_radius, pcb_thickness_+.2), [centering_hole_position[0], centering_hole_position[1], 0])
-            corner_hole = cylinder(corner_radius, pcb_thickness_ + .2)
+            centering_hole = translate(cylinder(centering_hole_radius-extra_tolerance_dimmensional_accuracy/2, pcb_thickness_+.2), [centering_hole_position[0], centering_hole_position[1], 0])
+            corner_hole = cylinder(corner_radius-extra_tolerance_dimmensional_accuracy/2, pcb_thickness_ + .2)
             holes = [
                 translate(corner_hole, (pcb_width / 2, pcb_height / 2, 0)),
                 translate(corner_hole, (-pcb_width / 2, pcb_height / 2, 0)),
@@ -933,6 +936,8 @@ def make_dactyl():
         debugprint('connectors()')
         return union(_connectors())
 
+    def detached_connectors():
+        return s.difference()(s.union()(key_holes(), connectors()), s.union()(*case_walls()))
 
     ############
     ## Thumbs ##
@@ -1179,9 +1184,10 @@ def make_dactyl():
             ))
             # STRANGE PARTIAL OFFSET
 
-        if ncols > 4:
-            shapes.append(key_wall_brace(lastcol, torow, 0, -1, web_post_br(), lastcol, torow, 1, 0, web_post_br())
-            )
+        # NOTE: uncomment this if using fron_wall instead of extended cluster walls
+        # if ncols > 4:
+        #     shapes.append(key_wall_brace(lastcol, torow, 0, -1, web_post_br(), lastcol, torow, 1, 0, web_post_br())
+        #     )
         # union all shapes into vertical and brace
         vertical = union(list(map(lambda x: x[0], shapes)))
         braces = union(list(map(lambda x: x[1], shapes)))
@@ -1245,7 +1251,7 @@ def make_dactyl():
         print('front_wall()')
 
         shapes = list()
-        min_last_col = shift_column + 3  # first_bottom_key()
+        min_last_col = shift_column  # first_bottom_key()
         if min_last_col < 0:
             min_last_col = 0
         if min_last_col >= ncols - 1:
@@ -1275,7 +1281,7 @@ def make_dactyl():
         shapes.append(back_wall())
         shapes.append(left_wall(side=side))
         shapes.append(right_wall())
-        shapes.append(front_wall())
+        # shapes.append(front_wall())
 
         shapes.append(cluster(side=side).walls(side=side))
         extra_braces = [cluster(side=side).connection(side=side)]
@@ -1512,15 +1518,14 @@ def make_dactyl():
         distance_bearing_plate = 3
         sensor_holder_distance = 10
         sensor_plate_extra_distance = -0.75
-        bearings_horizon_rotation = [10,7,31]
+        bearings_horizon_rotation = [3,7,31]
         bearing_zrotation_offset = -15
-        # sensor_rotations = ([0,0,-125],[-25,0,0],[0,2,0],[0,25,0])
-        sensor_rotations = ([0, 0, 113], [-20, 0, 0],[0, -48, 0], )
+        sensor_rotations = ([0, 0, 113], [-17.5, 0, 0],[0, -58, 0], )
         trackball_hole_radius = trackball_radius+ball_spacing
         holder_back_thickness = 2
         outer_shell = sphere(outer_shell_radius)
         trackball_hole = sphere(trackball_hole_radius)
-        shell_cutter = translate(box(100,100,100), [0,0, 50])
+        shell_cutter = translate(box(30,30,30), [0,0, 15])
 
         shell_cutter = hull_from_shapes( [
             translate(box(1,1,1),[60,40,0]),
@@ -1536,7 +1541,7 @@ def make_dactyl():
             translate(box(1,1,1),[20,-30,30]),
                                          ])
         # shell_cutter = translate(box(100,100,100), [0,0, 50])
-        cylinder_cutter = translate(cylinder(trackball_radius+1, 100), [0,0,50])
+        cylinder_cutter = translate(cylinder(trackball_radius+1, 30), [0,0,15])
         sensor_hole = box(12,8,100)
         sensor_plate_distance = trackball_radius+sensor_plate_extra_distance
 
@@ -1549,7 +1554,7 @@ def make_dactyl():
         sensor_section_sealing = translate(translate(cylinder(19, 1), [0,0,-0.5]), [0,0,-sensor_plate_distance])
         sensor_plate = union([sensor_section_sealing,sensor_plate])
         sensor_plate = difference(sensor_plate, [sensor_hole])
-        sensor_cutter = translate(translate(box(100,100,100), [0,0, -50]), [0,0,-sensor_plate_distance])
+        sensor_cutter = translate(translate(box(40,40,20), [0,0, -10]), [0,0,-sensor_plate_distance])
         sensor_holder = union([
                 translate(translate( box(32.3, 18, holder_back_thickness) , [0, 1, -holder_back_thickness/2]),[0,-2.5,-sensor_plate_distance-sensor_holder_distance]),
                 translate( translate( box(2, 18, sensor_holder_distance) , [0.85, 1, sensor_holder_distance/2]), [-16, -2.5, -sensor_plate_distance-sensor_holder_distance]),
@@ -1609,7 +1614,8 @@ def make_dactyl():
         sensor = import_file(sens_file)
         # shape = box(1,1,1)
         # sensor = box(1,1,1)
-        # cutter = box(1,1,1)
+        # if quickly:
+        #     cutter = box(1,1,1)
         # cutter = sphere(ball_diameter/2)
         if not btus:
             cutter = union([cutter, import_file(senscut_file)])
@@ -2155,7 +2161,7 @@ def make_dactyl():
             translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0], so[6][1], so[6][2] + offset)),  # thumb cluster
         ]
         if side=='right':
-            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0]-82, so[6][1]+15, so[6][2] + offset))) # extra screw on right side
+            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[7][0], so[7][1], so[7][2] + offset))) # extra screw on right side
         else:
             shape.append(
             translate(screw_insert(3, lastrow, bottom_radius, top_radius, height, side=side, hole=hole),
@@ -2181,7 +2187,11 @@ def make_dactyl():
 
 
     def screw_insert_screw_holes(side='right'):
-        return screw_insert_all_shapes(1.7, 1.7, 350, side=side)
+        # ugh
+        main_holes = screw_insert_all_shapes(1.7, 1.7, 350, side=side)
+        hide_holes = map(lambda x: mirror(translate(x, [0,0,175+base_thickness/2]), "XY"), screw_insert_all_shapes(3.25, 3.25, 350, hole=True, side=side))
+        # hide_holes = list()
+        return list(main_holes) + list(hide_holes)
 
 
     def wire_post(direction, offset):
@@ -2208,16 +2218,16 @@ def make_dactyl():
     def model_side(side="right"):
         print('model_side()' + side)
         shape = union([key_holes(side=side)])
-        if debug_exports:
-            export_file(shape=shape, fname=path.join(r".", "things", f"debug_key_plates_{side}"))
+        # if debug_exports:
+        #     export_file(shape=shape, fname=path.join(r".", "things", f"debug_key_plates_{side}"))
         connector_shape = connectors()
         shape = union([shape, connector_shape])
         if debug_exports:
             export_file(shape=shape, fname=path.join(r".", "things", f"debug_connector_shape_{side}"))
-        thumb_shape = cluster(side).thumb(side=side)
+        thumb_shape = union([shape, cluster(side).thumb(side=side)])
         if debug_exports:
             export_file(shape=thumb_shape, fname=path.join(r".", "things", f"debug_thumb_shape_{side}"))
-        shape = union([shape, thumb_shape])
+        shape = union([thumb_shape])
         thumb_connector_shape = cluster(side).thumb_connectors(side=side)
         shape = union([shape, thumb_connector_shape])
         if debug_exports:
@@ -2306,7 +2316,7 @@ def make_dactyl():
 
                 if cluster(side).has_btus():
                     shape = difference(shape, [tbcutout])
-                    shape = union([shape, tb])
+                    # shape = union([shape, tb])
                     # shape = union([shape, sensor])
                 else:
                     # export_file(shape=shape, fname=path.join(save_path, config_name + r"_test_1"))
@@ -2341,14 +2351,15 @@ def make_dactyl():
         print('backplate()' + side)
         key_columns = list(map(lambda shape: bottom_hull([shape]), key_holes_filled(side)))
         # manually prevent bottom hulls from overlapping
-        key_columns[3] = difference(key_columns[3], [translate(key_columns[6], [0,0,20])])
-        key_columns[4] = difference(key_columns[4], [translate(key_columns[7], [0,0,20])])
-        key_columns[5] = difference(key_columns[5], [translate(key_columns[8], [0,0,20])])
-        key_columns[8] = difference(key_columns[8], [translate(key_columns[11], [0,0,20])])
+        # key_columns[3] = difference(key_columns[3], [translate(key_columns[6], [0,0,20])])
+        # key_columns[4] = difference(key_columns[4], [translate(key_columns[7], [0,0,20])])
+        # key_columns[5] = difference(key_columns[5], [translate(key_columns[8], [0,0,20])])
+        # key_columns[8] = difference(key_columns[8], [translate(key_columns[11], [0,0,20])])
         key_columns = union(key_columns)
         connector_columns = union(map(lambda shape: bottom_hull([shape]), _connectors()))
         connector_columns = difference(connector_columns, [translate(key_columns, [0,0,20])])
         main_block =union([key_columns, connector_columns])
+        main_block = key_columns
         thumb_shapes = (cluster(side)._thumb_1x_layout(hull_from_shapes([single_plate(side=side)]))
                     + cluster(side)._thumb_connectors(side=side))
         thumb_block = union(map(lambda shape: bottom_hull([shape]), thumb_shapes))
@@ -2363,24 +2374,24 @@ def make_dactyl():
             connectors(),
             cluster(side).thumb_connectors(), cluster(side).pcbs(side=side),
             cluster(side).thumb_1x_layout(hull_from_shapes([single_plate(side=side)])),
+            *list(map(lambda screw_insert: bottom_hull([translate(screw_insert, [0,0,100])]), screw_insert_outers(side=side)))
             ] )
         web_thickness = _web_thickness
-        if cluster(side).is_tb:
-            _, _, tbcutout, _, _ = generate_trackball_in_cluster(cluster(side))
-            hull_cutout = hull_from_shapes([tbcutout])
-            shape = difference(shape, [hull_cutout])
         floor = translate(box(400, 400, 40), (0, 0, -20))
         shape = difference(shape, [floor, *case_walls(side=side)])
         if side == "left":
             shape = mirror(shape, 'YZ')
         return shape
 
-    def wrist_rest(base, plate, side="right"):
-        rest = import_file(path.join(parts_path, "dactyl_wrist_rest_v3_" + side))
-        rest = rotate(rest, (0, 0, -60))
-        rest = translate(rest, (30, -150, 26))
-        rest = union([rest, translate(base, (0, 0, 5)), plate])
-        return rest
+    def wrist_rest(model, base, side="right"):
+        body = wrist.wrist_rest(side)
+        body = s.rotate([90,0,0])(body)
+        body = s.rotate([0,0,95])(body)
+        body = s.translate([-35,-150,-base_thickness])(body)
+        if side == "left":
+            body = mirror(body, "YZ")
+        body = s.difference()(body, model, base)
+        return body
 
     def baseplate(shape, wedge_angle=None, side='right'):
         shape = union([
@@ -2389,15 +2400,36 @@ def make_dactyl():
         ])
 
         tool = union(screw_insert_screw_holes(side=side))
+        rubber_feet_hole_depth = 1.5
+        rubber_feet_radius = 4.25
+        rubber_feet_hole = translate(cylinder(rubber_feet_radius, rubber_feet_hole_depth),
+                                     [0,0, -base_thickness+rubber_feet_hole_depth/2-0.01])
+        rubber_feet = [
+                    translate(rubber_feet_hole, [-70, 17, 0]),
+                    translate(rubber_feet_hole, [-99, -45, 0]) if side=='right' else translate(rubber_feet_hole, [-50, -70, 0]),
+                    translate(rubber_feet_hole, [-66, -78, 0]),
+                    translate(rubber_feet_hole, [42, -70, 0]),
+                    translate(rubber_feet_hole, [47, -2, 0]),
+                    translate(rubber_feet_hole, [7, 27, 0]),
+                ]
         base = box(1000, 1000, .01)
         # shape = shape - tool
         shape = intersect(shape, base)
 
         shape = translate(shape, [0, 0, -0.001])
-        base = translate(sl.linear_extrude(height=base_thickness)( sl.projection(cut=True)(shape).fill()),
-                            [0,0, -base_thickness])
+        base = difference(translate(sl.linear_extrude(height=base_thickness)( sl.projection(cut=True)(shape).fill()),
+                            [0,0, -base_thickness]), [pcbs()])
         base = union([base, backplate(side=side)])
-        return difference(base, [tool])
+        if cluster(side).is_tb:
+            _, tb, tbcutout, _, _ = generate_trackball_in_cluster(cluster(side))
+            base = difference(base, [tbcutout])
+            base = union([base, tb])
+        floor = translate(box(200,200,50), [0,0,-25-base_thickness])
+        base= difference(base, [floor])
+        # base = union([base, rubber_feet_hole])
+        base = difference(base, [rubber_feet, tool])
+        return base
+
 
 
     def run():
@@ -2405,25 +2437,26 @@ def make_dactyl():
         export_file(shape=mod_r, fname=path.join(save_path, config_name + r"_right"))
         # pcb_backplate = backplate(side="right")
         # export_file(shape=pcb_backplate, fname=path.join(save_path, config_name + r"backplate_right"))
+        mod_l, walls_l = model_side(side="left")
+        export_file(shape=mod_l, fname=path.join(save_path, config_name + r"_left"))
+        conn = detached_connectors()
+        export_file(shape=conn, fname=path.join(save_path, config_name + r"conn_left"))
 
         if right_side_only:
             print(">>>>>  RIGHT SIDE ONLY: Only rendering a the right side.")
             return
         base = baseplate(walls_r, side='right')
         export_file(shape=base, fname=path.join(save_path, config_name + r"_right_plate"))
-        if quickly:
-            print(">>>>>  QUICK RENDER: Only rendering a the right side and bottom plate.")
-            return
-        export_dxf(shape=base, fname=path.join(save_path, config_name + r"_right_plate"))
+        rest = wrist_rest(mod_r, base, side="right")
+        export_file(shape=rest, fname=path.join(save_path, config_name + r"_right_wrist_rest"))
+        # if quickly:
+        #     print(">>>>>  QUICK RENDER: Only rendering a the right side and bottom plate.")
+        #     return
+        # export_dxf(shape=base, fname=path.join(save_path, config_name + r"_right_plate"))
 
-        # rest = wrist_rest(mod_r, base, side="right")
-        #
-        # export_file(shape=rest, fname=path.join(save_path, config_name + r"_right_wrist_rest"))
 
         # if symmetry == "asymmetric":
 
-        mod_l, walls_l = model_side(side="left")
-        export_file(shape=mod_l, fname=path.join(save_path, config_name + r"_left"))
         # pcb_backplate = backplate(side="left")
         # export_file(shape=pcb_backplate, fname=path.join(save_path, config_name + r"backplate_left"))
         first_column_test = difference(mod_l, [
@@ -2434,7 +2467,9 @@ def make_dactyl():
 
         base_l = mirror(baseplate(walls_l, side='left'), 'YZ')
         export_file(shape=base_l, fname=path.join(save_path, config_name + r"_left_plate"))
-        export_dxf(shape=base_l, fname=path.join(save_path, config_name + r"_left_plate"))
+        # export_dxf(shape=base_l, fname=path.join(save_path, config_name + r"_left_plate"))
+        rest = wrist_rest(mod_l, base_l, side="left")
+        export_file(shape=rest, fname=path.join(save_path, config_name + r"_left_wrist_rest"))
 
         # else:
         #     export_file(shape=mirror(mod_r, 'YZ'), fname=path.join(save_path, config_name + r"_left"))
@@ -2539,6 +2574,7 @@ def rexroth_bearing(cutter):
             cylinder(17/2+tolerance_diameter, 1.8+tolerance_depth),
             translate(sphere(4) if not cutter else translate(cylinder(17/2+tolerance_diameter, 4), [0,0,2]), [0,0,-0.1])
         ]), [0, 0, -0.9])
+
 
 if __name__ == '__main__':
     make_dactyl()
