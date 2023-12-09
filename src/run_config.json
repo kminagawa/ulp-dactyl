@@ -6,8 +6,8 @@
   "save_name": "",
   "config_name": "jonboh",
   "logo_file": null,
-  "show_caps": true,
-  "show_pcbs": true,
+  "show_caps": false,
+  "show_pcbs": false,
   "show_external_holder": false,
   "resin": false,
   "nrows": 3,
@@ -118,21 +118,21 @@
     0.0,
     0,
     0,
-    0.16179916666666664,
+    0,
     -0.26179916666666664,
     -0.26179916666666664
   ],
   "fixed_x": [
-    -39.5,
-    -19,
-    0,
-    19,
-    39,
+    -40,
+    -21,
+    2,
+    23,
+    44,
     65.5,
     89.6
   ],
   "fixed_z": [
-    14.1,
+    14.7,
     11.3,
     5,
     5,
@@ -301,7 +301,7 @@
       0
     ],
     [
-      -20,
+      -22,
       -10,
       0
     ],

@@ -9,7 +9,7 @@ class DefaultCluster(object):
     thumb_pos_offsets = [
         -5,
         0,
-        14
+        13
     ]
     thumb_rot_offset = [
         0,
@@ -109,7 +109,7 @@ class DefaultCluster(object):
         # shape = rotate(shape, [6, -20, 10])
         # shape = translate(shape, [-32, -44, -9])
         shape = rotate(shape, [30, 40, -5])
-        shape = translate(shape, [18,-32,-54])
+        shape = translate(shape, [22,-34,-58])
         shape = self.thumb_place(shape)
         return shape
 
