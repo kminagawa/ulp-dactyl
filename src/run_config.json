@@ -24,7 +24,7 @@
   "inner_column": false,
   "all_last_rows": true,
   "full_last_rows": true,
-  "keyboard_z_offset": 5,
+  "keyboard_z_offset": 2.25,
   "thumb_style": "TRACKBALL_JONBOH",
   "right_side_only": false,
   "default_1U_cluster": true,
@@ -74,17 +74,17 @@
   "tb_socket_rotation_offset": [
     0,
     0,
-    -50
+    0
   ],
   "tb_btu_socket_translation_offset": [
     0,
     0,
-    -20.0
+    -20
   ],
   "tb_btu_socket_rotation_offset": [
     0,
     0,
-    20
+    0
   ],
   "tb_sensor_translation_offset": [
     0,
@@ -100,7 +100,7 @@
   "first_1_5U_row": 0,
   "last_1_5U_row": 5,
   "extra_width": 0.5,
-  "extra_height": -6.75,
+  "extra_height": -6,
   "wall_z_offset": 5,
   "wall_x_offset": 1,
   "wall_y_offset": 5,
@@ -123,8 +123,8 @@
     -0.26179916666666664
   ],
   "fixed_x": [
-    -40,
-    -21,
+    -38.5,
+    -19,
     2,
     23,
     44,
@@ -132,7 +132,7 @@
     89.6
   ],
   "fixed_z": [
-    14.7,
+    15.2,
     11.3,
     5,
     5,
@@ -152,7 +152,7 @@
   "sa_profile_key_height": 12.7,
   "sa_length": 18.5,
   "sa_double_length": 37.5,
-  "plate_thickness": 1.25,
+  "plate_thickness": 2.5,
   "plate_rim_width": 1.5,
   "plate_rim_height": 1,
   "clip_thickness": 1.4,
@@ -192,13 +192,14 @@
   "wire_post_diameter": 2.6,
   "controller_mount_type": "EXTERNAL",
   "controller_side": "both",
-  "external_holder_height": 31,
-  "external_holder_width": 19,
   "blackpill_holder_width": 32.0,
   "blackpill_holder_xoffset": -6.5,
-  "external_holder_xoffset": -42,
-  "external_holder_yoffset": 5,
-  "external_holder_rotation": [0, 0, 0],
+  "external_holder_width": 32,
+  "external_holder_height": 16,
+  "external_holder_xoffset": -16,
+  "external_holder_yoffset": 1,
+  "external_holder_zoffset": 0,
+  "external_holder_rotation": [0, 0, 7.5],
   "usb_c_width": 9.5,
   "usb_c_height": 3.5,
   "usb_c_xoffset": -3,
@@ -223,8 +224,8 @@
   "plate_holes_height": 14.3,
   "plate_holes_diameter": 1.7,
   "plate_holes_depth": 20.0,
-  "pcb_width": 18.0,
-  "pcb_height": 16.8,
+  "pcb_width": 18.2,
+  "pcb_height": 16.6,
   "pcb_thickness": 1.2,
   "pcb_hole_diameter": 2,
   "column_offsets": [
@@ -276,23 +277,23 @@
   ],
   "screw_offsets": [
     [
-      35,
-      11.5,
+      3,
+      5,
       0
     ],
     [
-      2,
-      0,
+      78,
+      -31,
       0
     ],
     [
-      -82,
-      2,
+      -94,
+      20,
       0
     ],
     [
-      -5,
-      -1,
+      -13,
+      5,
       0
     ],
     [
@@ -301,18 +302,18 @@
       0
     ],
     [
-      -22,
-      -10,
+      -19,
+      -25,
       0
     ],
     [
-      -4,
-      50,
+      -20,
+      20,
       0
     ],
     [
-      -68,
-      41,
+      -74,
+      53,
       0
     ]
   ],
