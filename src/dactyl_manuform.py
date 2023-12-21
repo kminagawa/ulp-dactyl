@@ -2422,7 +2422,7 @@ def make_dactyl():
         ])
 
         tool = union(screw_insert_screw_holes(side=side))
-        rubber_feet_hole_depth = 1.5
+        rubber_feet_hole_depth = 1.25
         rubber_feet_radius = 4.25
         rubber_feet_hole = translate(cylinder(rubber_feet_radius, rubber_feet_hole_depth),
                                      [0,0, -base_thickness+rubber_feet_hole_depth/2-0.01])
@@ -2430,7 +2430,6 @@ def make_dactyl():
                     translate(rubber_feet_hole, [-47, 19, 0]),
                     translate(rubber_feet_hole, [-70, -64, 0]),
                     translate(rubber_feet_hole, [-99, -19, 0]) if side=='right' else translate(rubber_feet_hole, [-60, -19, 0]),
-                    translate(rubber_feet_hole, [-66, -78, 0]),
                     translate(rubber_feet_hole, [42, -65, 0]),
                     translate(rubber_feet_hole, [51, -7, 0]),
                     translate(rubber_feet_hole, [2, 27, 0]),
