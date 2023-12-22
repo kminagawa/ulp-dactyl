@@ -39,7 +39,7 @@ nix develop
 That should build the interpreter and put you in a bash shell that will be able to generate the keyboard.
 Then run:
 ```bash
-python src/dactyl-manuform.py
+python src/dactyl_manuform.py
 ```
 
 ---
