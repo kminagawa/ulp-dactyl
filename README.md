@@ -3,7 +3,8 @@ This repository has my last keyboard. The ULP Dactyl, that uses the Cherry Ultra
 
 ![ULP Dactyl](./assets/ulp_dactyl.jpeg)
 
-You can find out more about these switches in the [Cherry_MX_ULP](https://github.com/pashutk/Cherry_MX_ULP)
+You can find out more about these switches in the [Cherry_MX_ULP](https://github.com/pashutk/Cherry_MX_ULP).
+
 I bought the switches from [Reichelt](https://www.reichelt.de/de/en/cherry-mx-ultra-low-profile-rgb-pushbutton-module-cherry-mx6c-k3nb-p335040.html), they have both clicky and tactile variant.
 
 Regarding the model, lot of the features of the original dactyl manuform repository no longer work as I've focused on using just solidpython2
@@ -32,6 +33,7 @@ I used helping hands to raise the pcbs and blast them from below and prevent the
 
 ## Trackball
 The trackball uses Rexroth BTUs `REXROTH R053010810`. 
+
 I started out using static ceramic bearings, but the BTUs roll much better with almost no static friction (even after a lot of use).
 
 
