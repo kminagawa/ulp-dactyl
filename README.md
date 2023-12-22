@@ -4,15 +4,16 @@ This repository has my last keyboard. The ULP Dactyl, that uses the Cherry Ultra
 ![ULP Dactyl](./assets/ulp_dactyl.jpeg)
 
 You can find out more about these switches in the [Cherry_MX_ULP](https://github.com/pashutk/Cherry_MX_ULP)
+I bought the switches from [Reichelt](https://www.reichelt.de/de/en/cherry-mx-ultra-low-profile-rgb-pushbutton-module-cherry-mx6c-k3nb-p335040.html), they have both clicky and tactile variant.
 
-A lot of the features of the original dactyl manuform repository no longer work as I've focused on using just solidpython2
+Regarding the model, lot of the features of the original dactyl manuform repository no longer work as I've focused on using just solidpython2
 and I've hacked away wherever I needed.
 
 It is forked from the wylders version because initially I just wanted to have a nice trackball.
-Then I went from normal switches to choc ones and finally to ULP.
+Then I went from MX switches to Choc ones and finally to ULP.
 
 The assembly unfortunately can't be made modular, at least not in a normal FDM printer.
-Some of the things I tried included using columns in which to rest the pcbs. However this approach
+Some of the things I tried include using columns in which to rest the pcbs. However this approach
 needed extremely tight tolerances that made printing almost impossible.
 
 Finally I just settled for mounting the pcbs on the surface of the shell. Although it isn't
@@ -29,9 +30,15 @@ the pcbs on the keyboard shell and solder with a soldering iron the wires betwee
 To solder the switches to the pcbs don't use a soldering iron. You need a hot air gun for these switches and pcbs.
 I used helping hands to raise the pcbs and blast them from below and prevent the switches plastic from getting damaged.
 
+## Trackball
+The trackball uses Rexroth BTUs `REXROTH R053010810`. 
+I started out using static ceramic bearings, but the BTUs roll much better with almost no static friction (even after a lot of use).
+
 
 ## Running the configuration
 I've made a Nix Flake with the needed Python interpreter to generate the keyboard.
+If you don't want to use the flake you can try to install solidpython2 with `pip`.
+
 To use the flake you need to install Nix and activate Flake support. Then run
 ```bash
 nix develop
