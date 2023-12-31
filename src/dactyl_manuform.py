@@ -2412,7 +2412,7 @@ def make_dactyl():
         ])
 
         tool = union(baseplate_holes(side=side))
-        rubber_feet_hole_depth = 1.25
+        rubber_feet_hole_depth = 1.64
         rubber_feet_radius = 4.25
         rubber_feet_hole = translate(cylinder(rubber_feet_radius, rubber_feet_hole_depth),
                                      [0,0, -base_thickness+rubber_feet_hole_depth/2-0.01])
