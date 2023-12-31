@@ -51,6 +51,10 @@ Then run:
 python src/dactyl_manuform.py
 ```
 
+In order to render the model use one of the [development snapshots from OpenSCAD](https://openscad.org/downloads.html#snapshots).
+This code makes use of the fill function that is not implemented in the last release (from 2021).
+I currently use `OpenSCAD-2023.10.27.ai16657`, later ones should work as well.
+
 ---
 
 
