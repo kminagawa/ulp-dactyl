@@ -2085,15 +2085,14 @@ def make_dactyl():
             ))
         return shape
 
-    def screw_insert(column, row, bottom_radius, top_radius, height, side='right', hole=False):
+    def place_screw(shape, column, row, side='right'):
         debugprint('screw_insert()')
-        position = screw_position(column, row, bottom_radius, top_radius, height, side)
-        shape = screw_insert_shape(bottom_radius, top_radius, height, hole=hole)
-        shape = translate(shape, [position[0], position[1], height / 2])
+        position = screw_position(column, row, side)
+        shape = translate(shape, [position[0], position[1], 0])
 
         return shape
 
-    def screw_position(column, row, bottom_radius, top_radius, height, side='right'):
+    def screw_position(column, row, side='right'):
         debugprint('screw_position()')
         shift_right = column == lastcol
         shift_left = column == 0
@@ -2149,60 +2148,51 @@ def make_dactyl():
 
         return position
 
-    def screw_insert_thumb(bottom_radius, top_radius, height, side='right', hole=False):
+    def screw_insert_thumb(shape, side='right'):
         position = cluster(side).screw_positions()
-
-        shape = screw_insert_shape(bottom_radius, top_radius, height, hole=hole)
-        shape = translate(shape, [position[0], position[1], height / 2])
+        shape = translate(shape, [position[0], position[1], 0])
         return shape
 
 
-    def screw_insert_all_shapes(bottom_radius, top_radius, height, offset=0, side='right', hole=False):
+    def place_screw_all(screw, side='right'):
         print('screw_insert_all_shapes()')
         so = screw_offsets
         shape = [
-            translate(screw_insert(0, 0, bottom_radius, top_radius, height, side=side, hole=hole), (so[0][0] - 8 if side == 'right' else so[0][0] , so[0][1], so[0][2] + offset)),  # rear left
-            translate(screw_insert(0, lastrow - 1, bottom_radius, top_radius, height, side=side, hole=hole),
-                      (so[1][0], so[1][1] + left_wall_lower_y_offset, so[1][2] + offset)),  # front left
-            translate(screw_insert(3, 0, bottom_radius, top_radius, height, side=side, hole=hole), (so[3][0], so[3][1], so[3][2] + offset)),  # rear middle
-            translate(screw_insert(lastcol, 0, bottom_radius, top_radius, height, side=side, hole=hole),
-                      (so[4][0], so[4][1], so[4][2] + offset)),  # rear right
-            translate(screw_insert(lastcol, lastrow - 1, bottom_radius, top_radius, height, side=side, hole=hole),
-                      (so[5][0], so[5][1], so[5][2] + offset)),  # front right
-            translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[6][0], so[6][1], so[6][2] + offset)),  # thumb cluster
+            translate(place_screw(screw, 0, 0,side=side), (so[0][0] - 8 if side == 'right' else so[0][0] , so[0][1], so[0][2] )),  # rear left
+            translate(place_screw(screw, 0, lastrow - 1,side=side),
+                      (so[1][0], so[1][1] + left_wall_lower_y_offset, so[1][2] )),  # front left
+            translate(place_screw(screw, 3, 0,side=side), (so[3][0], so[3][1], so[3][2] )),  # rear middle
+            translate(place_screw(screw, lastcol, 0,side=side),
+                      (so[4][0], so[4][1], so[4][2] )),  # rear right
+            translate(place_screw(screw, lastcol, lastrow - 1,side=side),
+                      (so[5][0], so[5][1], so[5][2] )),  # front right
+            translate(screw_insert_thumb(screw, side=side), (so[6][0], so[6][1], so[6][2] )),  # thumb cluster
         ]
         if side=='right':
-            shape.append(translate(screw_insert_thumb(bottom_radius, top_radius, height, side=side, hole=hole), (so[7][0], so[7][1], so[7][2] + offset))) # extra screw on right side
+            shape.append(translate(screw_insert_thumb(screw, side=side), (so[7][0], so[7][1], so[7][2] ))) # extra screw on right side
         else:
-            shape.append(
-            translate(screw_insert(3, lastrow, bottom_radius, top_radius, height, side=side, hole=hole),
-                      (so[2][0], so[2][1], so[2][2] + offset)),  # front middle
-            )
+            shape.append(translate(place_screw(screw, 3, lastrow,side=side), (so[2][0], so[2][1], so[2][2] )),  )# front middle
 
         return tuple(shape)
 
 
     def screw_insert_holes(side='right'):
-        return screw_insert_all_shapes(
-            screw_insert_bottom_radius, screw_insert_top_radius, screw_insert_height + .02, offset=-.01, side=side, hole=True
-        )
+        height = screw_insert_height + .02
+        screw = translate(screw_insert_shape(screw_insert_bottom_radius, screw_insert_top_radius, height, hole=True), [0,0,height / 2-0.01])
+        return place_screw_all(screw, side=side)
 
 
     def screw_insert_outers(side='right'):
-        return screw_insert_all_shapes(
-            screw_insert_bottom_radius + 1.6,
-            screw_insert_top_radius + 1.6,
-            screw_insert_height + 1.5,
-            side=side
-        )
+        height = screw_insert_height + 1.5
+        screw = translate(screw_insert_shape(screw_insert_bottom_radius + 1.6, screw_insert_top_radius + 1.6, height), [0,0,height / 2])
+        return place_screw_all( screw , side=side)
 
 
-    def screw_insert_screw_holes(side='right'):
+    def baseplate_holes(side='right'):
         # ugh
-        main_holes = screw_insert_all_shapes(1.7, 1.7, 350, side=side)
-        hide_holes = map(lambda x: mirror(translate(x, [0,0,175+base_thickness/2]), "XY"), screw_insert_all_shapes(3.25, 3.25, 350, hole=True, side=side))
-        # hide_holes = list()
-        return list(main_holes) + list(hide_holes)
+        hide_screw = translate(cone(3.25, 1.7, 2.05), [0,0,-2.05/2-base_thickness/2])
+        holes = place_screw_all(hide_screw, side=side)
+        return holes
 
 
     def wire_post(direction, offset):
@@ -2421,7 +2411,7 @@ def make_dactyl():
             *screw_insert_outers(side=side)
         ])
 
-        tool = union(screw_insert_screw_holes(side=side))
+        tool = union(baseplate_holes(side=side))
         rubber_feet_hole_depth = 1.25
         rubber_feet_radius = 4.25
         rubber_feet_hole = translate(cylinder(rubber_feet_radius, rubber_feet_hole_depth),
