@@ -1530,7 +1530,7 @@ def make_dactyl():
         sensor_plate_extra_distance = -0.25
         bearings_horizon_rotation = [10,10,10]
         bearing_zrotation_offset = 40
-        sensor_rotations = ([85, 0, 0], [0, 0, -50],[0, 0, 0], )
+        sensor_rotations = ([70, 0, 0], [0, 0, -32],[0, 0, 0], )
         trackball_hole_radius = trackball_radius+ball_spacing
         holder_back_thickness = 2
         outer_shell = sphere(outer_shell_radius)
@@ -1557,8 +1557,8 @@ def make_dactyl():
 
         bearings = union([
             rotate(translate(rotate(rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate , 0, 0]), [0,-bearings_horizon_rotation[0],bearing_zrotation_offset+0]),
-            rotate(rotate(translate(rotate( rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate, 0, 0]), [0,-bearings_horizon_rotation[1],0]), [0, 0,bearing_zrotation_offset + 120]),
-            rotate(rotate(translate(rotate( rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate, 0, 0]), [0,-bearings_horizon_rotation[2],0]), [0, 0, bearing_zrotation_offset + 240])])
+            rotate(rotate(translate(rotate( rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate, 0, 0]), [0,-bearings_horizon_rotation[1],0]), [0, 0,bearing_zrotation_offset + 130]),
+            rotate(rotate(translate(rotate( rexroth_bearing_cutter(), [0,90,0]), [-trackball_radius - distance_bearing_plate, 0, 0]), [0,-bearings_horizon_rotation[2],0]), [0, 0, bearing_zrotation_offset + 250])])
 
         sensor_plate = translate(translate(box(32, 21, 1), [0,0,-0.5]), [0,0, -sensor_plate_distance])
         sensor_section_sealing = translate(translate(cylinder(19, 1), [0,0,-0.5]), [0,0,-sensor_plate_distance])
@@ -1566,9 +1566,9 @@ def make_dactyl():
         sensor_plate = difference(sensor_plate, [sensor_hole])
         sensor_cutter = translate(translate(box(32,32,12), [0,3, -6]), [0,0,-sensor_plate_distance])
         sensor_holder = union([
-                translate(translate( box(32.3, 20, holder_back_thickness) , [0, 0, -holder_back_thickness/2]),[0,-2.5,-sensor_plate_distance-sensor_holder_distance]),
-                translate( translate( box(2, 20, sensor_holder_distance) , [0.85, 0, sensor_holder_distance/2]), [-16, -2.5, -sensor_plate_distance-sensor_holder_distance]),
-                translate( translate( box(2, 20, sensor_holder_distance) , [-0.85, 0, sensor_holder_distance/2]), [16, -2.5, -sensor_plate_distance-sensor_holder_distance]),
+                translate(translate( box(32.5, 20, holder_back_thickness) , [0, 0, -holder_back_thickness/2]),[0,-2.5,-sensor_plate_distance-sensor_holder_distance]),
+                translate( translate( box(2, 20, sensor_holder_distance) , [0.85, 0, sensor_holder_distance/2]), [-16.025, -2.5, -sensor_plate_distance-sensor_holder_distance]),
+                translate( translate( box(2, 20, sensor_holder_distance) , [-0.85, 0, sensor_holder_distance/2]), [16.025, -2.5, -sensor_plate_distance-sensor_holder_distance]),
                 sensor_plate,
                 ])
         for rotation in sensor_rotations:
@@ -1586,9 +1586,9 @@ def make_dactyl():
             # remove floor to avoid cutting baseplate
             shape = difference(shape, [translate(box(60,60,25), [0,0,-20])])
             shape = union([shape, sphere(trackball_radius+ball_spacing), bearings, difference(sensor_cutter, [shell_cutter])])
-        shape = translate(shape, [0, 0, 22])
         # shape = union([shape, sphere(trackball_radius), bearings])
         # shape = union([shape, bearings])
+        shape = translate(shape, [0, 0, 22])
         return shape
 
     def trackball_socket(btus=False,segments=100, side="right"):
@@ -2323,6 +2323,7 @@ def make_dactyl():
 
             if cluster(side).has_btus():
                 shape = difference(shape, [tbcutout])
+                # shape = union([shape, [tbcutout])
                 # shape = union([shape, tb])
                 # shape = union([shape, sensor])
             else:
@@ -2451,7 +2452,7 @@ def make_dactyl():
             base = difference(base, [tbcutout])
             # NOTE: you need to compute the caches commenting the following three lines, then ucomment and compute
             # the whole thing
-            floor = translate(box(42,42,50), [-72,-20,-25-base_thickness])
+            floor = translate(rotate(box(52,52,50), [0,0,22]), [-67,-17,-25-base_thickness])
             tb = difference(tb, [floor])
             base = union([base, tb])
         return base
@@ -2461,6 +2462,8 @@ def make_dactyl():
     def run():
         mod_l, walls_l = model_side(side="left")
         export_file(shape=mod_l, fname=path.join(save_path, config_name + r"_left"))
+        base_l = mirror(baseplate(walls_l, side='left'), 'YZ')
+        export_file(shape=base_l, fname=path.join(save_path, config_name + r"_left_plate"))
 
         export_file(shape=trackball_holder(), fname=path.join(save_path, "trackball_holder"))
         export_file(shape=trackball_holder(True), fname=path.join(save_path, "trackball_holder_cutter"))
@@ -2493,8 +2496,6 @@ def make_dactyl():
             ])
         export_file(shape=first_column_test, fname=path.join(save_path, config_name + r"first_column_test"))
 
-        base_l = mirror(baseplate(walls_l, side='left'), 'YZ')
-        export_file(shape=base_l, fname=path.join(save_path, config_name + r"_left_plate"))
         # export_dxf(shape=base_l, fname=path.join(save_path, config_name + r"_left_plate"))
         rest = wrist_rest(mod_l, base_l, side="left")
         export_file(shape=rest, fname=path.join(save_path, config_name + r"_left_wrist_rest"))
