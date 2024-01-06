@@ -7,6 +7,10 @@ You can find out more about these switches in the [Cherry_MX_ULP](https://github
 
 I bought the switches from [Reichelt](https://www.reichelt.de/de/en/cherry-mx-ultra-low-profile-rgb-pushbutton-module-cherry-mx6c-k3nb-p335040.html), they have both clicky and tactile variant.
 
+You can find the PCBs I designed for the keyboard [here](https://github.com/jonboh/amoeba-cherry-ulp). You should be able to order them in
+any pcb manufacturer like EuroCircuits or JLPCB.
+The diodes used in the PCBs are `1N4148W SOD323`.
+
 Regarding the model, lot of the features of the original dactyl manuform repository no longer work as I've focused on using just solidpython2
 and I've hacked away wherever I needed.
 
@@ -20,19 +24,38 @@ needed extremely tight tolerances that made printing almost impossible.
 Finally I just settled for mounting the pcbs on the surface of the shell. Although it isn't
 strictly necessary you'll want to add a bit of glue on the bottom of the PCBs so they stay in place.
 
+Depending on the tolerance of your printer you might want to have a bit of sanding paper to
+sand the corners and edges of your pcbs so that the fit.
+
 ![soldering](./assets/soldering.jpeg)
 ![soldering](./assets/soldering_finished.jpeg)
+![mounted](./assets/finished.jpeg)
 
 
 ## Soldering
 First you'll have to solder all the switches to the pcb. Then the diode to the pcb, and finally mount
 the pcbs on the keyboard shell and solder with a soldering iron the wires between the pcbs.
 
-To solder the switches to the pcbs don't use a soldering iron. You need a hot air gun for these switches and pcbs.
+To solder the switches to the pcbs you need a hot air gun.
 I used helping hands to raise the pcbs and blast them from below and prevent the switches plastic from getting damaged.
+Once the switch is attached to the pcb plate you can use a soldering iron to reflow the corners so that they
+grip the switch. Otherwise you might snap them when handling them. Be careful to not use excessive soldering
+paste, as it can flow inside the switch itself and ruin it.
+
+![solder_paste](./assets/pcb_solder_paste.jpeg)
+
+![soldering_position_0](./assets/soldering_position_0.jpeg)
+
+![soldering_position_1](./assets/soldering_position_1.jpeg)
+
+When you are done with the switch you can solder the diode on the back. The diodes 1N4148W SOD323 are quite
+small, I used the hot air gun again for these, although you have again to be quick and not over do it
+with the heat or you could detach the switch on the front.
+
 
 ## Trackball
-The trackball uses Rexroth BTUs `REXROTH R053010810`. 
+The trackball uses Rexroth BTUs `REXROTH R053010810`. I bought them from [rodavigo](rodavigo.net) but they should
+be available in other stores.
 
 I started out using static ceramic bearings, but the BTUs roll much better with almost no static friction (even after a lot of use).
 
@@ -54,6 +77,11 @@ python src/dactyl_manuform.py
 In order to render the model use one of the [development snapshots from OpenSCAD](https://openscad.org/downloads.html#snapshots).
 This code makes use of the fill function that is not implemented in the last release (from 2021).
 I currently use `OpenSCAD-2023.10.27.ai16657`, later ones should work as well.
+
+
+## Quickly iterating
+There's a variable `quickly` in `src/dactyl-manuform.py` that will generate a rough keyboard with some of the most expensive
+features removed, you can set it to `true` to iterate faster on your design.
 
 ---
 
