@@ -27,9 +27,8 @@ strictly necessary you'll want to add a bit of glue on the bottom of the PCBs so
 Depending on the tolerance of your printer you might want to have a bit of sanding paper to
 sand the corners and edges of your pcbs so that the fit.
 
-![soldering](./assets/soldering.jpeg)
-![soldering](./assets/soldering_finished.jpeg)
-![mounted](./assets/finished.jpeg)
+![soldering](./assets/soldering.jpeg) | ![soldering](./assets/soldering_finished.jpeg) | ![mounted](./assets/finished.jpeg)
+|--------------|-----------|------------|
 
 
 ## Soldering
@@ -42,11 +41,12 @@ Once the switch is attached to the pcb plate you can use a soldering iron to ref
 grip the switch. Otherwise you might snap them when handling them. Be careful to not use excessive soldering
 paste, as it can flow inside the switch itself and ruin it.
 
-![solder_paste](./assets/pcb_solder_paste.jpeg)
+ ![solder_paste](./assets/pcb_solder_paste.jpeg) |  ![soldering_position_0](./assets/soldering_position_0.jpeg) | ![soldering_position_1](./assets/soldering_position_1.jpeg)
+|--------------|-----------|------------|
 
-![soldering_position_0](./assets/soldering_position_0.jpeg)
 
-![soldering_position_1](./assets/soldering_position_1.jpeg)
+
+
 
 When you are done with the switch you can solder the diode on the back. The diodes 1N4148W SOD323 are quite
 small, I used the hot air gun again for these, although you have again to be quick and not over do it
@@ -59,6 +59,19 @@ be available in other stores.
 
 I started out using static ceramic bearings, but the BTUs roll much better with almost no static friction (even after a lot of use).
 
+## Transport Box
+As the keyboard switches are much more fragile than traditional choc and mx switches and not easily changed, I've
+made a pair of boxes to transport the keyboard.
+
+They are tight enough to prevent the keyboard from moving around
+inside the case, but loose enough to not actually press any switch when closed.
+The left side has a cavity in which any moderately sized wire set for your keyboard should enter.
+
+ ![](./assets/left_open.jpeg) |  ![](./assets/right_open.jpeg)
+-------------------------|-------------------------
+
+ ![](./assets/cases_closed.jpeg) |  ![](./assets/single_case.jpeg) | ![](./assets/case_upsidedown.jpeg)
+-------------------------|-------------------------|----------
 
 ## Running the configuration
 I've made a Nix Flake with the needed Python interpreter to generate the keyboard.
