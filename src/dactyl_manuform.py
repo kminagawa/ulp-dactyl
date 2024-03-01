@@ -1586,6 +1586,8 @@ def make_dactyl():
             # remove floor to avoid cutting baseplate
             shape = difference(shape, [translate(box(60,60,25), [0,0,-20])])
             shape = union([shape, sphere(trackball_radius+ball_spacing), bearings, difference(sensor_cutter, [shell_cutter])])
+            if hull_trackball_cutter:
+                shape = hull_from_shapes([shape])
         # shape = union([shape, sphere(trackball_radius), bearings])
         # shape = union([shape, bearings])
         shape = translate(shape, [0, 0, 22])
@@ -2322,8 +2324,10 @@ def make_dactyl():
             _, tb, tbcutout, sensor, _ = generate_trackball_in_cluster(cluster(side))
 
             if cluster(side).has_btus():
-                shape = difference(shape, [tbcutout])
-                # shape = union([shape, [tbcutout])
+                if hull_trackball_cutter:
+                    shape = union([shape, tbcutout])
+                else:
+                    shape = difference(shape, [tbcutout])
                 # shape = union([shape, tb])
                 # shape = union([shape, sensor])
             else:
@@ -2458,8 +2462,163 @@ def make_dactyl():
         return base
 
 
+    def round_cube(x, y, z, radius, _fn):
+        x_ = x - 2*radius
+        y_ = y - 2*radius
+        z_ = z - 2*radius
+        spheres = s.translate([x_/2, y_/2, z_/2])(s.sphere(radius, _fn=_fn))
+        spheres = s.union()(s.mirrorZ()(spheres), spheres)
+        spheres = s.union()(s.mirrorY()(spheres), spheres)
+        spheres = s.union()(s.mirrorX()(spheres), spheres)
+        return s.hull()(spheres)
+
+    def cylinder_band(x, y, band_width, band_depth, radius, _fn):
+        x -= 2*radius
+        y -= 2*radius
+        outer = s.back(y/2)(s.left(x/2)(s.down(band_width/2)(s.cylinder(h=band_width, r=radius, _fn=_fn))))
+        outer = s.union()(s.mirrorY()(outer), outer)
+        outer = s.union()(s.mirrorX()(outer), outer)
+        outer = s.hull()(outer)
+        inner = s.back(y/2-band_depth/2)(s.left(x/2-band_depth/2)(s.down(band_width/2+0.05)(s.cylinder(h=band_width+0.1, r=radius, _fn=_fn))))
+        inner = s.union()(s.mirrorY()(inner), inner)
+        inner = s.union()(s.mirrorX()(inner), inner)
+        inner = s.hull()(inner)
+        return s.difference()(outer, inner)
+
+    def _make_case(x_width, y_width, z_top, z_bottom, band_width, band_depth, radius, _fn, side, wire_box):
+        global show_caps, base_thickness, hull_trackball_cutter, show_external_holder, external_holder_yoffset
+        global wall_thickness, wall_base_x_thickness, wall_base_y_thickness, wall_base_back_thickness
+        _show_caps = show_caps
+        _base_thickness = base_thickness
+        _hull_trackball_cutter = hull_trackball_cutter
+        _show_external_holder = show_external_holder
+        _external_holder_yoffset = external_holder_yoffset
+        _wall_thickness = wall_thickness
+        _wall_base_x_thickness = wall_base_x_thickness
+        _wall_base_y_thickness = wall_base_y_thickness
+        _wall_base_back_thickness = wall_base_back_thickness
+        show_caps = True
+        if side == "right":
+            hull_trackball_cutter = True
+        show_external_holder = True
+        _external_holder_yoffset = external_holder_yoffset
+        external_holder_yoffset +=0.5
+        base_thickness+=1
+        wall_thickness+=1
+        wall_base_x_thickness+=1
+        wall_base_y_thickness+=1
+        wall_base_back_thickness+=1
+        keyboard, walls = model_side(side)
+        if side == "left":
+            base = mirror(baseplate(walls, side=side), 'YZ')
+        else:
+            base = baseplate(walls, side=side)
+        # keyboard = s.union()(keyboard, base)
+        # keyboard_hole = s.left(32.5)(s.forward(22.5)(
+        #     s.hull()(keyboard)))
+        if side=="left":
+            centering = lambda x: s.left(32.5)(s.forward(22.5)(x))
+        else:
+            centering = lambda x: s.right(27.5)(s.forward(22.5)(x))
+        base_hole = centering(s.hull()(base))
+        keyboard_hole = centering(s.hull()(keyboard))
+        keyboard_hole = s.union()(keyboard_hole, base_hole)
+
+        if wire_box:
+            keyboard_hole = s.union()(
+                    keyboard_hole,
+                    s.up(20)(s.right(68)(s.forward(12.5)((s.rotate([0,0,20])(round_cube(50, 90, 45, 15, _fn)))))))
+        show_caps = _show_caps
+        base_thickness = _base_thickness
+        show_external_holder = _show_external_holder
+        hull_trackball_cutter = _hull_trackball_cutter
+        external_holder_yoffset = _external_holder_yoffset
+        wall_thickness = _wall_thickness
+        wall_base_x_thickness = _wall_base_x_thickness
+        wall_base_y_thickness = _wall_base_y_thickness
+        wall_base_back_thickness = _wall_base_back_thickness
+
+
+        # Bottom
+        case_bottom = s.up(z_top/2)(s.difference()(
+                s.down(z_bottom/2)(round_cube(x_width, y_width, z_bottom+z_top, radius, _fn)),
+                s.cube(x_width*2, y_width*2, z_top, center=True)
+                ))
+        case_bottom = s.difference()(case_bottom, keyboard_hole)
+
+        # Top
+        case_top = s.down(z_bottom/2)(s.difference()(
+            s.up(z_top/2)(round_cube(x_width, y_width, z_top+z_bottom, radius, _fn)),
+            s.cube(x_width*2, y_width*2, z_bottom, center=True)
+            ))
+        case_top = s.difference()(case_top, keyboard_hole)
+
+        # Bands
+        band_xz = s.up((z_top+z_bottom)/2-z_bottom)(s.rotate([90,0,0])(cylinder_band(x_width+0.01, (z_top+z_bottom)+0.01, band_width, band_depth, radius, _fn)))
+        band_xy = s.up((z_top+z_bottom)/2-z_bottom)(cylinder_band(x_width+0.01, y_width+0.01, band_width, band_depth, radius, _fn))
+        band_yz = s.up((z_top+z_bottom)/2-z_bottom)(s.rotate([0,90,0])(cylinder_band((z_top+z_bottom)+0.01, y_width+0.01, band_width, band_depth, radius, _fn)))
+        case_top = s.difference()(case_top, band_xz, band_xy, band_yz)
+        case_bottom = s.difference()(case_bottom, band_xz, band_xy, band_yz)
+
+        # Centering columns
+        columns_radius = 7
+        cylinder_hole = s.down(0.01)(s.cylinder(h=10, r=columns_radius+0.25, _fn=_fn))
+        cylinder = s.cylinder(h=5, r=columns_radius-0.5, _fn=_fn)
+
+        if side == "left":
+            cyl_place = lambda cylinder: s.union()(
+                    s.right(87)(s.back(50)(cylinder)),
+                    s.right(87)(s.forward(50)(cylinder)),
+                    s.left(87)(s.forward(50)(cylinder))
+                    )
+        else:
+            cyl_place = lambda cylinder: s.union()(
+                    s.left(80)(s.back(50)(cylinder)),
+                    s.right(80)(s.forward(50)(cylinder)),
+                    s.left(80)(s.forward(50)(cylinder))
+                    )
+
+        feet = s.union()(
+                s.down(z_bottom-0.01)(s.right(80)(s.back(50)(s.cylinder(h=2, d=11, _fn=_fn)))),
+                s.down(z_bottom-0.01)(s.left(80)(s.back(50)(s.cylinder(h=2, d=11, _fn=_fn)))),
+                s.down(z_bottom-0.01)(s.left(80)(s.forward(50)(s.cylinder(h=2, d=11, _fn=_fn)))),
+                s.down(z_bottom-0.01)(s.right(80)(s.forward(50)(s.cylinder(h=2, d=11, _fn=_fn))))
+                )
+
+        case_top = s.difference()(case_top, cyl_place(cylinder_hole))
+        case_bottom = s.union()(case_bottom, cyl_place(cylinder))
+        case_bottom = s.difference()(case_bottom, feet)
+        # return keyboard, keyboard_hole
+        return case_top, case_bottom
+
+    def make_case_left():
+        _fn = 100
+        radius = 15
+        x_width = 215
+        y_width = 140
+        z_top = 47.5
+        z_bottom = 6
+        band_depth = 4
+        band_width = 20.5
+        case_top, case_bottom = _make_case(x_width, y_width, z_top, z_bottom, band_width, band_depth, radius, _fn, "left", True)
+        return case_top, case_bottom
+
+
+    def make_case_right():
+        _fn = 100
+        radius = 15
+        x_width = 205
+        y_width = 140
+        z_top = 47.5
+        z_bottom = 6
+        band_depth = 4
+        band_width = 20.5
+        case_top, case_bottom = _make_case(x_width, y_width, z_top, z_bottom, band_width, band_depth, radius, _fn, "right", False)
+        return case_top, case_bottom
+
 
     def run():
+
         mod_l, walls_l = model_side(side="left")
         export_file(shape=mod_l, fname=path.join(save_path, config_name + r"_left"))
         base_l = mirror(baseplate(walls_l, side='left'), 'YZ')
@@ -2488,6 +2647,12 @@ def make_dactyl():
         #     return
         # export_dxf(shape=base, fname=path.join(save_path, config_name + r"_right_plate"))
 
+        case_top_r, case_bottom_r = make_case_right()
+        export_file(shape=case_top_r, fname=path.join(save_path, config_name + r"_case_top_right"))
+        export_file(shape=case_bottom_r, fname=path.join(save_path, config_name + r"_case_bottom_right"))
+        case_top_l, case_bottom_l = make_case_left()
+        export_file(shape=case_top_l, fname=path.join(save_path, config_name + r"_case_top_left"))
+        export_file(shape=case_bottom_l, fname=path.join(save_path, config_name + r"_case_bottom_left"))
 
         # if symmetry == "asymmetric":
         first_column_test = difference(mod_l, [
