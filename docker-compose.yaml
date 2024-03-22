@@ -1,0 +1,29 @@
+
+services:
+  dactyl:
+    build: .
+    command:
+#      - /app/run.sh
+#      - generate
+      - python3
+      - -i
+      - /app/src/dactyl_manuform.py
+    #    ports:
+#      - "443:8043"
+#    networks:
+#      - front-tier
+#      - back-tier
+#    configs:
+#      - httpd-config
+#    secrets:
+#      - server-certificate
+    volumes:
+      - type: bind
+        source: S:/temp/ulp-dactyl-low-profile/configs
+        target: /app/configs
+      - type: bind
+        source: S:/temp/ulp-dactyl-low-profile/things
+        target: /app/things
+#      - type: bind
+#        source: S:/temp/ulp-dactyl-low-profile/src
+#        target: /app/src

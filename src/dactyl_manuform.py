@@ -43,7 +43,7 @@ def get_git_branch():
     except subprocess.CalledProcessError:
         return None
     except FileNotFoundError:
-        log("No git repository found.", "ERROR")
+        print("No git repository found.", "ERROR")
         return None
 
 def deg2rad(degrees: float) -> float:
